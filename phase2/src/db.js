@@ -43,8 +43,8 @@ async function addTeam(team_id,team_name) {
 //تجربة للميثود
 /*const result_Team=await addTeam(1229,"ICS")
 const team = await getTeam(1229)
-console.log(team)
-*/
+console.log(team)*/
+
 
 
 
