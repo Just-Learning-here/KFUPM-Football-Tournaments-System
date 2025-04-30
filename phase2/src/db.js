@@ -49,7 +49,7 @@ console.log(team)*/
 
 
 
-async function selectCaptain() {
+async function selectCaptain(match_no,team_id,player_id) {
     
 }
 
@@ -76,6 +76,14 @@ async function getTeam(team_id) {
     return rows[0]  
 }
 
+
+async function getMatches() {
+    const [rows] = await pool.query('SELECT * FROM match_played')
+    return rows  
+}
+
+const result= await getMatches()
+console.log(result)
 
 
 
