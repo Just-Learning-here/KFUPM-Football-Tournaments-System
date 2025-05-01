@@ -43,26 +43,47 @@ async function addTeam(team_id,team_name) {
 //تجربة للميثود
 /*const result_Team=await addTeam(1229,"ICS")
 const team = await getTeam(1229)
-console.log(team)
-*/
+console.log(team)*/
 
 
 
 
-async function selectCaptain() {
-    
+
+async function selectCaptain(match_no,team_id,player_id) {
+    const result=await pool.query("INSERT INTO match_captain (match_no,team_id,player_captain) VALUES(?,?,?)",[match_no,team_id,player_id])
+    return await getMatchCaptain()
 }
+
+//تجربة للميثود
+// const result_Captain=await selectCaptain(1,1216,1003)
+// const captains = await getMatchCaptain()
+// console.log(captains)
+
+
 
 async function approvePlayerJoin() {
     
 }
 
-async function deleteTournament() {
-    
+
+
+
+async function deleteTournament(tr_id) {
+    await pool.query("DELETE FROM tournament WHERE tr_id=?  ",[tr_id])
+
 }
 
 
+//تجربة للميثود
+// const result_Team=await deleteTournament(7)
+
+
+
+
 // Guest Functions
+
+// get team players
+
 
 
 // getters 
@@ -70,11 +91,32 @@ async function getTournament(tr_id) {
     const [rows] = await pool.query('SELECT * FROM tournament WHERE tr_id=?',[tr_id])
     return rows[0]  
 }
+async function getAllTournament() {
+    const [rows] = await pool.query('SELECT * FROM tournament')
+    return rows   
+}
 
 async function getTeam(team_id) {
     const [rows] = await pool.query('SELECT * FROM team WHERE team_id=?',[team_id])
     return rows[0]  
 }
+
+
+async function getMatches() {
+    const [rows] = await pool.query('SELECT * FROM match_played')
+    return rows  
+}
+
+async function getMatchCaptain() {
+    const [rows] = await pool.query('SELECT * FROM match_captain')
+    return rows  
+}
+
+
+
+// const result= await getMatches()
+// console.log(result)
+
 
 
 
