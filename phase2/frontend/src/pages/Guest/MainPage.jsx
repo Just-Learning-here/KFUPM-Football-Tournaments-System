@@ -78,7 +78,6 @@ useEffect(() => {
    .then(res => res.json())
    .then(fetchedData => {
      setFetchedTournaments(fetchedData); // store in variable
-     
    })
    .catch(err => console.error('Error fetching data:', err));
 },[])
@@ -89,11 +88,31 @@ useEffect(() => {
   
   //console.log(tournaments[0].tr_id)
   //console.log(fetchedTournaments)
+
+
   const [selectedTournament, setSelectedTournament] = useState(
-      tournaments[0].id
+    //console.log(fetchedTournaments),
+    
+    //tournaments[0].id
     
   );
-  console.log(fetchedTournaments)
+
+  useEffect(() => {
+    if (fetchedTournaments.length > 0) {
+       setSelectedTournament=fetchedTournaments[0].tr_id;
+       console.log(selectedTournament);
+    }
+    else{
+      console.log("There is nothing ")
+      console.log(fetchedTournaments)
+    }
+  },[] );
+
+
+
+  //console.log(fetchedTournaments)
+
+  
 
 
   const matches = matchesByTournament[selectedTournament];
