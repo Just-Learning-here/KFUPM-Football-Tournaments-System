@@ -71,7 +71,7 @@ async function approvePlayerJoin(player_id,team_id,tr_id) {
     }
 }
 
-approvePlayerJoin(1001,1216,1)
+//approvePlayerJoin(1001,1216,1)
 
 
 async function isPlayerValid(id,tr_id){
@@ -128,7 +128,7 @@ async function getTournament(tr_id) {
     const [rows] = await pool.query('SELECT * FROM tournament WHERE tr_id=?',[tr_id])
     return rows[0]  
 }
-async function getAllTournament() {
+export async function getAllTournament() {
     const [rows] = await pool.query('SELECT * FROM tournament')
     return rows   
 }
