@@ -144,6 +144,28 @@ async function getMatches() {
     return rows  
 }
 
+
+
+export async function getMatchesInCertainTournament(tr_id) {
+    //const lengthOfTournaments = getAllTournament.length()
+    const[rows] = await pool.query('SELECT tr_id, team_id1,team_id2,md.match_no, team_group,results from match_played as mp JOIN tournament_team as tm ON mp.team_id1 = tm.team_id JOIN match_details as md on tm.team_id=md.team_id and md.match_no=mp.match_no where tr_id= ? Order by tr_id,md.match_no',[tr_id])
+    return rows 
+    // for(tournament in lengthOfTournaments){
+        
+    //     return
+    
+    // }
+    
+}
+
+
+//تجربة للميثود
+// const resultOfMatchesInATournament = await getMatchesInCertainTournament(1)
+// console.log(resultOfMatchesInATournament)
+
+
+
+
 async function getMatchCaptain() {
     const [rows] = await pool.query('SELECT * FROM match_captain')
     return rows  

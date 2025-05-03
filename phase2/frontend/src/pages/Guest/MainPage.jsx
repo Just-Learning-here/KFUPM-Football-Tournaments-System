@@ -83,6 +83,9 @@ useEffect(() => {
 },[])
 
 
+
+
+
   //tournaments=JSON.parse(fetchedTournaments)
 
   
@@ -90,32 +93,53 @@ useEffect(() => {
   //console.log(fetchedTournaments)
 
 
-  const [selectedTournament, setSelectedTournament] = useState(
+  const [selectedTournament, setSelectedTournament] = useState(null
     //console.log(fetchedTournaments),
-    
-    //tournaments[0].id
-    
   );
 
-  useEffect(() => {
+    
+  useEffect( () => {
+    console.log(fetchedTournaments.length)
     if (fetchedTournaments.length > 0) {
-       setSelectedTournament=fetchedTournaments[0].tr_id;
-       console.log(selectedTournament);
+       setSelectedTournament(fetchedTournaments[0].tr_id)
     }
     else{
       console.log("There is nothing ")
-      console.log(fetchedTournaments)
     }
-  },[] );
-
+  },[fetchedTournaments] )
 
 
   //console.log(fetchedTournaments)
 
+  const [fetchedMatches,setfetchedMatches] = useState([]);
+  
+  // useEffect(() => {
+  //   fetch(`http://127.0.0.1:6969/Matches?tr_id=${selectedTournament}`) // replace with your actual server URL
+  //     .then(res => res.json())
+  //     .then(fetchedData => {
+  //       setfetchedMatches(fetchedData); // store in variable
+  //     })
+  //     .catch(err => console.error('Error fetching data:', err));
+  //  },[selectedTournament])
   
 
+   useEffect(() => {
+    if (!selectedTournament) return; // Wait until a tournament is selected
+  
+    fetch(`http://127.0.0.1:6969/Matches?tr_id=${selectedTournament}`)
+      .then(res => res.json())
+      .then(fetchedData => {
+        setfetchedMatches(fetchedData);
+      })
+      .catch(err => console.error('Error fetching data:', err));
+  }, [selectedTournament]);
+  
+  
+   
 
-  const matches = matchesByTournament[selectedTournament];
+   
+  //let matches = fetchedMatches;
+  
 
   return (
     
@@ -159,37 +183,37 @@ useEffect(() => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <div className="col-span-12 md:col-span-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {matches.map((match) => {
-              const team1 = teams[match.team1];
-              const team2 = teams[match.team2];
+            {fetchedMatches.map((match) => {
+              const team1 = teams[match.team_id1];
+              const team2 = teams[match.team_id2];
 
               return (
                 <div
-                  key={match.id}
+                  key={match.match_no}
                   className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-xl transition"
                 >
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex flex-col items-center text-center">
-                      <img
+                      {/* <img
                         src={team1.logo}
                         alt={match.team1}
                         className="w-16 h-16 rounded-full mb-2 border border-white/30"
-                      />
-                      <span className="text-sm font-bold">{match.team1}</span>
+                      /> */}
+                      <span className="text-sm font-bold">{match.team_id1}</span>
                       <span className="text-xs text-gray-300">
-                        {team1.info}
+                        {/* {match.info} */}
                       </span>
                     </div>
                     <span className="text-xl font-bold text-gray-200">VS</span>
                     <div className="flex flex-col items-center text-center">
-                      <img
+                      {/* <img
                         src={team2.logo}
                         alt={match.team2}
                         className="w-16 h-16 rounded-full mb-2 border border-white/30"
-                      />
-                      <span className="text-sm font-bold">{match.team2}</span>
+                      /> */}
+                      <span className="text-sm font-bold">{match.team_id2}</span>
                       <span className="text-xs text-gray-300">
-                        {team2.info}
+                        {/* {team2.info} */}
                       </span>
                     </div>
                   </div>

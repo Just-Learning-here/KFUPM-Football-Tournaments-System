@@ -1,8 +1,11 @@
 import express from 'express'
 import path, {dirname} from 'path'
 import { fileURLToPath } from 'url'
-import { getAllTournament } from './db.js'
+import { getAllTournament, getMatchesInCertainTournament }  from './db.js'
 import cors from 'cors'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 
 
@@ -30,6 +33,34 @@ app.get('/tournament', (req,res) => {
     
 
 })
+
+
+app.get('/Matches', async(req,res) => {
+    const tournamentId = parseInt(req.query.tr_id);
+
+  if (!tournamentId) {
+    return res.status(400).json({ error: "Tournament ID is required" });
+  }
+
+  
+  
+
+  try {
+    const matches = await getMatchesInCertainTournament(tournamentId)
+    res.json(matches)
+    console.log(matches)
+  } catch (err) {
+    console.error('Query failed:', err);
+    res.status(500).json({ error: 'Database query failed' });
+  }
+
+
+    
+    
+
+})
+
+
 
 app.listen(PORT, ()=>{
     console.log(`Server has Start on port: ${PORT}`)
