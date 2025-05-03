@@ -1,7 +1,7 @@
 import express from 'express'
 import path, {dirname} from 'path'
 import { fileURLToPath } from 'url'
-import { getAllTournament, getMatchesInCertainTournament }  from './db.js'
+import { getAllTournament, getMatchesInCertainTournament, getRedCards, getScorers }  from './db.js'
 import cors from 'cors'
 import dotenv from 'dotenv'
 
@@ -60,6 +60,24 @@ app.get('/Matches', async(req,res) => {
 
 })
 
+const scorers = await getScorers();
+app.get('/Scorers', (req,res) => {
+
+    res.json(scorers)
+    console.log(scorers)
+    
+
+})
+
+
+const redCards = await getRedCards();
+app.get('/redCards', (req,res) => {
+
+    res.json(redCards)
+    console.log(redCards)
+    
+
+})
 
 
 app.listen(PORT, ()=>{

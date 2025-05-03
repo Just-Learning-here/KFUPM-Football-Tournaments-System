@@ -133,6 +133,30 @@ useEffect(() => {
       })
       .catch(err => console.error('Error fetching data:', err));
   }, [selectedTournament]);
+
+
+  const [fetchedGoals,setFetchedGoals] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:6969/Scorers') // replace with your actual server URL
+      .then(res => res.json())
+      .then(fetchedData => {
+        setFetchedGoals(fetchedData); // store in variable
+      })
+      .catch(err => console.error('Error fetching data:', err));
+   },[])
+
+
+   const [fetchedRedCards,setfetchedRedCards] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:6969/redCards') // replace with your actual server URL
+      .then(res => res.json())
+      .then(fetchedData => {
+        setfetchedRedCards(fetchedData); // store in variable
+      })
+      .catch(err => console.error('Error fetching data:', err));
+   },[])
   
   
    
@@ -184,8 +208,8 @@ useEffect(() => {
         <div className="col-span-12 md:col-span-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {fetchedMatches.map((match) => {
-              const team1 = teams[match.team_id1];
-              const team2 = teams[match.team_id2];
+              const team1 = teams[match.team1_name];
+              const team2 = teams[match.team2_name];
 
               return (
                 <div
@@ -199,7 +223,7 @@ useEffect(() => {
                         alt={match.team1}
                         className="w-16 h-16 rounded-full mb-2 border border-white/30"
                       /> */}
-                      <span className="text-sm font-bold">{match.team_id1}</span>
+                      <span className="text-sm font-bold">{match.team1_name}</span>
                       <span className="text-xs text-gray-300">
                         {/* {match.info} */}
                       </span>
@@ -211,7 +235,7 @@ useEffect(() => {
                         alt={match.team2}
                         className="w-16 h-16 rounded-full mb-2 border border-white/30"
                       /> */}
-                      <span className="text-sm font-bold">{match.team_id2}</span>
+                      <span className="text-sm font-bold">{match.team2_name}</span>
                       <span className="text-xs text-gray-300">
                         {/* {team2.info} */}
                       </span>
@@ -227,10 +251,10 @@ useEffect(() => {
           <div className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg">
             <h3 className="text-lg font-semibold mb-3">🎯 Top Scorers</h3>
             <ul className="divide-y divide-white/10 text-sm">
-              {goalScorers.map((player, index) => (
-                <li key={index} className="flex justify-between py-2">
+              {fetchedGoals.map((player) => (
+                <li key={player.player_id} className="flex justify-between py-2">
                   <span>{player.name}</span>
-                  <span className="text-gray-300">{player.goals} Goals</span>
+                  <span className="text-gray-300">{player.Goals} Goals</span>
                 </li>
               ))}
             </ul>
@@ -239,11 +263,11 @@ useEffect(() => {
           <div className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg">
             <h3 className="text-lg font-semibold mb-3">🟥 Red Cards</h3>
             <ul className="divide-y divide-white/10 text-sm">
-              {redCards.map((player, index) => (
-                <li key={index} className="flex justify-between py-2">
+              {fetchedRedCards.map((player) => (
+                <li key={player.player_id} className="flex justify-between py-2">
                   <span>{player.name}</span>
                   <span className="text-gray-300">
-                    {player.cards} Red Cards
+                    {player.RedCards} Red Cards
                   </span>
                 </li>
               ))}

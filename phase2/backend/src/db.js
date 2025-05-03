@@ -148,15 +148,27 @@ async function getMatches() {
 
 export async function getMatchesInCertainTournament(tr_id) {
     //const lengthOfTournaments = getAllTournament.length()
-    const[rows] = await pool.query('SELECT tr_id, team_id1,team_id2,md.match_no, team_group,results from match_played as mp JOIN tournament_team as tm ON mp.team_id1 = tm.team_id JOIN match_details as md on tm.team_id=md.team_id and md.match_no=mp.match_no where tr_id= ? Order by tr_id,md.match_no',[tr_id])
+    const[rows] = await pool.query('SELECT tm.tr_id, t1.team_name AS team1_name, t2.team_name AS team2_name, md.match_no, tm.team_group, mp.results FROM match_played AS mp JOIN tournament_team AS tm ON mp.team_id1 = tm.team_id JOIN team AS t1 ON t1.team_id = mp.team_id1 JOIN team AS t2 ON t2.team_id = mp.team_id2 JOIN match_details AS md ON tm.team_id = md.team_id AND md.match_no = mp.match_no WHERE tm.tr_id = ? ORDER BY tm.tr_id, md.team_id;',[tr_id])
     return rows 
-    // for(tournament in lengthOfTournaments){
-        
-    //     return
-    
-    // }
-    
+
 }
+
+export async function getScorers(){
+    const[rows] = await pool.query('select player_id,p.name, team_name ,sum(gd.match_no) AS Goals from goal_details as gd JOIN team as t ON t.team_id = gd.team_id JOIN person as p ON p.kfupm_id = gd.player_id group by player_id, team_name,p.name ;')
+    return rows 
+}
+
+export async function getRedCards(){
+    const[rows]= await pool.query('select p.name, t.team_name, sum(match_no) as RedCards from player_booked as pd Join team as t On t.team_id = pd.team_id Join person as p On p.kfupm_id = pd.player_id where sent_off="Y" Group by p.name,t.team_name;')
+    return rows
+}
+
+
+
+
+
+
+
 
 
 //تجربة للميثود
