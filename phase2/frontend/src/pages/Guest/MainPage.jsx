@@ -224,7 +224,9 @@ useEffect(() => {
                         alt={match.team1}
                         className="w-16 h-16 rounded-full mb-2 border border-white/30"
                       /> */}
+                      <button>
                       <span className="text-sm font-bold">{match.team1_name}</span>
+                      </button>
                       <span className="text-xs text-gray-300">
                         {/* {match.info} */}
                       </span>
@@ -237,7 +239,11 @@ useEffect(() => {
                         alt={match.team2}
                         className="w-16 h-16 rounded-full mb-2 border border-white/30"
                       /> */}
+                      <button>  
                       <span className="text-sm font-bold">{match.team2_name}</span>
+                      </button>
+
+
                       <span className="text-xs text-gray-300">
                         {/* { match.play_date } */}
                       </span>
