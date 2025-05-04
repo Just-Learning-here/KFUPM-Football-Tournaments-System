@@ -3,69 +3,69 @@ import { useNavigate } from "react-router-dom";
 
 
 
-let tournaments = [
+// let tournaments = [
       
 
-   { id: 1, name: "Premium League" },
-  { id: 2, name: "Student Tournament" },
-  { id: 3, name: "Annual Tournament" },
-];
+//    { id: 1, name: "Premium League" },
+//   { id: 2, name: "Student Tournament" },
+//   { id: 3, name: "Annual Tournament" },
+// ];
 
-const teams = {
-  "Team X": {
-    logo: ".//img/ClubIcons/club1.jpeg",
-    info: "College of Computer Science",
-  },
-  "Team Z": { logo: "/logos/cep.png", info: "College of Engineering Physics" },
-  "Team Y": { logo: "/logos/cpg.png", info: "College of Petroleum" },
-  "Team A": { logo: "/logos/kbs.png", info: "KFUPM Business School" },
-  "Team B": { logo: "/logos/cgs.png", info: "College of General Studies" },
-  "Team C": { logo: "/logos/cep2.png", info: "Civil Engineering Program" },
-  "Team D": { logo: "/logos/ccs2.png", info: "Computer Engineering Team" },
-};
+// const teams = {
+//   "Team X": {
+//     logo: ".//img/ClubIcons/club1.jpeg",
+//     info: "College of Computer Science",
+//   },
+//   "Team Z": { logo: "/logos/cep.png", info: "College of Engineering Physics" },
+//   "Team Y": { logo: "/logos/cpg.png", info: "College of Petroleum" },
+//   "Team A": { logo: "/logos/kbs.png", info: "KFUPM Business School" },
+//   "Team B": { logo: "/logos/cgs.png", info: "College of General Studies" },
+//   "Team C": { logo: "/logos/cep2.png", info: "Civil Engineering Program" },
+//   "Team D": { logo: "/logos/ccs2.png", info: "Computer Engineering Team" },
+// };
 
-const matchesByTournament = {
-  1: [
-    { id: 1, team1: "Team X", team2: "Team Z" },
-    { id: 2, team1: "Team Y", team2: "Team Z" },
-    { id: 3, team1: "Team X", team2: "Team Y" },
-    { id: 4, team1: "Team A", team2: "Team D" },
-    { id: 5, team1: "Team B", team2: "Team C" },
-    { id: 6, team1: "Team X", team2: "Team B" },
-  ],
-  2: [
-    { id: 7, team1: "Team A", team2: "Team B" },
-    { id: 8, team1: "Team C", team2: "Team D" },
-    { id: 9, team1: "Team Z", team2: "Team Y" },
-    { id: 10, team1: "Team A", team2: "Team C" },
-  ],
-  3: [
-    { id: 11, team1: "Team Y", team2: "Team B" },
-    { id: 12, team1: "Team X", team2: "Team C" },
-    { id: 13, team1: "Team A", team2: "Team Z" },
-    { id: 14, team1: "Team D", team2: "Team Y" },
-  ],
-};
+// const matchesByTournament = {
+//   1: [
+//     { id: 1, team1: "Team X", team2: "Team Z" },
+//     { id: 2, team1: "Team Y", team2: "Team Z" },
+//     { id: 3, team1: "Team X", team2: "Team Y" },
+//     { id: 4, team1: "Team A", team2: "Team D" },
+//     { id: 5, team1: "Team B", team2: "Team C" },
+//     { id: 6, team1: "Team X", team2: "Team B" },
+//   ],
+//   2: [
+//     { id: 7, team1: "Team A", team2: "Team B" },
+//     { id: 8, team1: "Team C", team2: "Team D" },
+//     { id: 9, team1: "Team Z", team2: "Team Y" },
+//     { id: 10, team1: "Team A", team2: "Team C" },
+//   ],
+//   3: [
+//     { id: 11, team1: "Team Y", team2: "Team B" },
+//     { id: 12, team1: "Team X", team2: "Team C" },
+//     { id: 13, team1: "Team A", team2: "Team Z" },
+//     { id: 14, team1: "Team D", team2: "Team Y" },
+//   ],
+// };
 
-const goalScorers = [
-  { name: "Player 1", goals: 15 },
-  { name: "Player 2", goals: 13 },
-  { name: "Player 3", goals: 12 },
-  { name: "Player 4", goals: 7 },
-];
+// const goalScorers = [
+//   { name: "Player 1", goals: 15 },
+//   { name: "Player 2", goals: 13 },
+//   { name: "Player 3", goals: 12 },
+//   { name: "Player 4", goals: 7 },
+// ];
 
-const redCards = [
-  { name: "Player A", cards: 5 },
-  { name: "Player B", cards: 4 },
-  { name: "Player C", cards: 4 },
-  { name: "Player D", cards: 3 },
-  { name: "Player E", cards: 3 },
-  { name: "Player F", cards: 2 },
-  { name: "Player G", cards: 2 },
-  { name: "Player H", cards: 1 },
-  { name: "Player I", cards: 1 },
-  { name: "Player J", cards: 1 },
-];
+// const redCards = [
+//   { name: "Player A", cards: 5 },
+//   { name: "Player B", cards: 4 },
+//   { name: "Player C", cards: 4 },
+//   { name: "Player D", cards: 3 },
+//   { name: "Player E", cards: 3 },
+//   { name: "Player F", cards: 2 },
+//   { name: "Player G", cards: 2 },
+//   { name: "Player H", cards: 1 },
+//   { name: "Player I", cards: 1 },
+//   { name: "Player J", cards: 1 },
+// ];
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -208,10 +208,11 @@ useEffect(() => {
         <div className="col-span-12 md:col-span-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {fetchedMatches.map((match) => {
-              const team1 = teams[match.team1_name];
-              const team2 = teams[match.team2_name];
+              // const team1 = teams[match.team1_name];
+              // const team2 = teams[match.team2_name];
 
               return (
+                
                 <div
                   key={match.match_no}
                   className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-xl transition"
@@ -227,8 +228,9 @@ useEffect(() => {
                       <span className="text-xs text-gray-300">
                         {/* {match.info} */}
                       </span>
+                      
                     </div>
-                    <span className="text-xl font-bold text-gray-200">VS</span>
+                    <span className="text-xl font-bold text-gray-200">{match.goal_score}</span>
                     <div className="flex flex-col items-center text-center">
                       {/* <img
                         src={team2.logo}
@@ -237,11 +239,17 @@ useEffect(() => {
                       /> */}
                       <span className="text-sm font-bold">{match.team2_name}</span>
                       <span className="text-xs text-gray-300">
-                        {/* {team2.info} */}
+                        {/* { match.play_date } */}
                       </span>
                     </div>
+                    
                   </div>
+                  <span className="flex flex-col items-center text-center">{match.play_date}</span>
                 </div>
+
+                
+
+                
               );
             })}
           </div>

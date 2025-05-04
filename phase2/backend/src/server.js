@@ -47,12 +47,21 @@ app.get('/Matches', async(req,res) => {
 
   try {
     const matches = await getMatchesInCertainTournament(tournamentId)
-    res.json(matches)
-    console.log(matches)
+    const formattedResults = matches.map(row => ({
+      ...row,
+      play_date: new Date(row.play_date).toISOString().slice(0, 10)
+    }));
+  
+    res.json(formattedResults);
+    
+    //res.json(matches)
+    //console.log(matches)
   } catch (err) {
     console.error('Query failed:', err);
     res.status(500).json({ error: 'Database query failed' });
   }
+
+  
 
 
     
