@@ -1,14 +1,10 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
-
 // let tournaments = [
-      
-
 //    { id: 1, name: "Premium League" },
-//   { id: 2, name: "Student Tournament" },
-//   { id: 3, name: "Annual Tournament" },
+//    { id: 2, name: "Student Tournament" },
+//    { id: 3, name: "Annual Tournament" },
 // ];
 
 // const teams = {
@@ -70,49 +66,40 @@ import { useNavigate } from "react-router-dom";
 export default function MainPage() {
   const navigate = useNavigate();
 
+  const [fetchedTournaments, setFetchedTournaments] = useState([]);
 
-  const [fetchedTournaments,setFetchedTournaments] = useState([]);
-  
-useEffect(() => {
- fetch('http://localhost:6969/tournament') // replace with your actual server URL
-   .then(res => res.json())
-   .then(fetchedData => {
-     setFetchedTournaments(fetchedData); // store in variable
-   })
-   .catch(err => console.error('Error fetching data:', err));
-},[])
-
-
-
-
+  useEffect(() => {
+    fetch("http://localhost:6969/tournament") // replace with your actual server URL
+      .then((res) => res.json())
+      .then((fetchedData) => {
+        setFetchedTournaments(fetchedData); // store in variable
+      })
+      .catch((err) => console.error("Error fetching data:", err));
+  }, []);
 
   //tournaments=JSON.parse(fetchedTournaments)
 
-  
   //console.log(tournaments[0].tr_id)
   //console.log(fetchedTournaments)
 
-
-  const [selectedTournament, setSelectedTournament] = useState(null
+  const [selectedTournament, setSelectedTournament] = useState(
+    null
     //console.log(fetchedTournaments),
   );
 
-    
-  useEffect( () => {
-    console.log(fetchedTournaments.length)
+  useEffect(() => {
+    console.log(fetchedTournaments.length);
     if (fetchedTournaments.length > 0) {
-       setSelectedTournament(fetchedTournaments[0].tr_id)
+      setSelectedTournament(fetchedTournaments[0].tr_id);
+    } else {
+      console.log("There is nothing ");
     }
-    else{
-      console.log("There is nothing ")
-    }
-  },[fetchedTournaments] )
-
+  }, [fetchedTournaments]);
 
   //console.log(fetchedTournaments)
 
-  const [fetchedMatches,setfetchedMatches] = useState([]);
-  
+  const [fetchedMatches, setfetchedMatches] = useState([]);
+
   // useEffect(() => {
   //   fetch(`http://127.0.0.1:6969/Matches?tr_id=${selectedTournament}`) // replace with your actual server URL
   //     .then(res => res.json())
@@ -121,56 +108,51 @@ useEffect(() => {
   //     })
   //     .catch(err => console.error('Error fetching data:', err));
   //  },[selectedTournament])
-  
 
-   useEffect(() => {
+  useEffect(() => {
     if (!selectedTournament) return; // Wait until a tournament is selected
-  
+
     fetch(`http://127.0.0.1:6969/Matches?tr_id=${selectedTournament}`)
-      .then(res => res.json())
-      .then(fetchedData => {
+      .then((res) => res.json())
+      .then((fetchedData) => {
         setfetchedMatches(fetchedData);
       })
-      .catch(err => console.error('Error fetching data:', err));
+      .catch((err) => console.error("Error fetching data:", err));
   }, [selectedTournament]);
 
-
-  const [fetchedGoals,setFetchedGoals] = useState([]);
+  const [fetchedGoals, setFetchedGoals] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:6969/Scorers') // replace with your actual server URL
-      .then(res => res.json())
-      .then(fetchedData => {
+    fetch("http://localhost:6969/Scorers") // replace with your actual server URL
+      .then((res) => res.json())
+      .then((fetchedData) => {
         setFetchedGoals(fetchedData); // store in variable
       })
-      .catch(err => console.error('Error fetching data:', err));
-   },[])
+      .catch((err) => console.error("Error fetching data:", err));
+  }, []);
 
-
-   const [fetchedRedCards,setfetchedRedCards] = useState([]);
+  const [fetchedRedCards, setfetchedRedCards] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:6969/redCards') // replace with your actual server URL
-      .then(res => res.json())
-      .then(fetchedData => {
+    fetch("http://localhost:6969/redCards") // replace with your actual server URL
+      .then((res) => res.json())
+      .then((fetchedData) => {
         setfetchedRedCards(fetchedData); // store in variable
       })
-      .catch(err => console.error('Error fetching data:', err));
-   },[])
-  
-  
-   
+      .catch((err) => console.error("Error fetching data:", err));
+  }, []);
 
-   
   //let matches = fetchedMatches;
-  
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white p-6 font-sans">
       <header className="flex justify-between items-center mb-10 px-2 md:px-4">
         <div className="flex items-center space-x-3">
-          <img src="/logos/soccer-ball.png" alt="Logo" className="w-10 h-10" />
+          <img
+            src={require("../../img/kfupm-logo.png")}
+            alt="KFUPM Logo"
+            className="w-12 h-12 rounded-full"
+          />
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
             KFUPM Football Tournaments
           </h1>
@@ -194,11 +176,11 @@ useEffect(() => {
           id="tournament"
           value={selectedTournament}
           onChange={(e) => setSelectedTournament(Number(e.target.value))}
-          className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-lg w-full md:w-1/3"
+          className="bg-gray-800 text-white px-4 py-2 rounded-lg w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {fetchedTournaments.map((tournament) => (
             <option key={tournament.tr_id} value={tournament.tr_id}>
-              {tournament.tr_name} 
+              {tournament.tr_name}
             </option>
           ))}
         </select>
@@ -212,50 +194,41 @@ useEffect(() => {
               // const team2 = teams[match.team2_name];
 
               return (
-                
                 <div
                   key={match.match_no}
                   className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-xl transition"
                 >
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex flex-col items-center text-center">
-                      {/* <img
-                        src={team1.logo}
-                        alt={match.team1}
-                        className="w-16 h-16 rounded-full mb-2 border border-white/30"
-                      /> */}
+                      {/* <img src={team1.logo} alt={match.team1} className="w-16 h-16 rounded-full mb-2 border border-white/30" /> */}
                       <button>
-                      <span className="text-sm font-bold">{match.team1_name}</span>
+                        <span className="text-sm font-bold">
+                          {match.team1_name}
+                        </span>
                       </button>
                       <span className="text-xs text-gray-300">
                         {/* {match.info} */}
                       </span>
-                      
                     </div>
-                    <span className="text-xl font-bold text-gray-200">{match.goal_score}</span>
+                    <span className="text-xl font-bold text-gray-200">
+                      {match.goal_score}
+                    </span>
                     <div className="flex flex-col items-center text-center">
-                      {/* <img
-                        src={team2.logo}
-                        alt={match.team2}
-                        className="w-16 h-16 rounded-full mb-2 border border-white/30"
-                      /> */}
-                      <button>  
-                      <span className="text-sm font-bold">{match.team2_name}</span>
+                      {/* <img src={team2.logo} alt={match.team2} className="w-16 h-16 rounded-full mb-2 border border-white/30" /> */}
+                      <button>
+                        <span className="text-sm font-bold">
+                          {match.team2_name}
+                        </span>
                       </button>
-
-
                       <span className="text-xs text-gray-300">
-                        {/* { match.play_date } */}
+                        {/* {match.play_date} */}
                       </span>
                     </div>
-                    
                   </div>
-                  <span className="flex flex-col items-center text-center">{match.play_date}</span>
+                  <span className="flex flex-col items-center text-center">
+                    {match.play_date}
+                  </span>
                 </div>
-
-                
-
-                
               );
             })}
           </div>
@@ -266,7 +239,10 @@ useEffect(() => {
             <h3 className="text-lg font-semibold mb-3">🎯 Top Scorers</h3>
             <ul className="divide-y divide-white/10 text-sm">
               {fetchedGoals.map((player) => (
-                <li key={player.player_id} className="flex justify-between py-2">
+                <li
+                  key={player.player_id}
+                  className="flex justify-between py-2"
+                >
                   <span>{player.name}</span>
                   <span className="text-gray-300">{player.Goals} Goals</span>
                 </li>
@@ -278,7 +254,10 @@ useEffect(() => {
             <h3 className="text-lg font-semibold mb-3">🟥 Red Cards</h3>
             <ul className="divide-y divide-white/10 text-sm">
               {fetchedRedCards.map((player) => (
-                <li key={player.player_id} className="flex justify-between py-2">
+                <li
+                  key={player.player_id}
+                  className="flex justify-between py-2"
+                >
                   <span>{player.name}</span>
                   <span className="text-gray-300">
                     {player.RedCards} Red Cards
