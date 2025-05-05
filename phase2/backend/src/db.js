@@ -110,7 +110,23 @@ async function deleteTournament(tr_id) {
 
 }
 
+export async function showMatchCaptain(match_no,team_id){
+    const [rows] = await pool.query('select p.name from match_captain as mc JOIN person as p ON p.kfupm_id = mc.player_captain where match_no = ? and team_id =?;',[match_no,team_id])
+    return rows;
+}
 
+
+
+export async function showTeamStaff(team_id){
+    const [rows] = await pool.query('select p.name,team_name, support_type from team_support as ts Join team as t ON t.team_id = ts.team_id JOIN person as p ON p.kfupm_id = ts.support_id where t.team_id=?;',[team_id])
+    return rows;
+    
+}
+
+export async function showTeamPlayers(tr_id,team_id){
+    const [rows] = await pool.query('select p.name, t.team_id  from player pr JOIN team_player as tm ON tm.player_id = pr.player_id JOIN person p ON p.kfupm_id=pr.player_id Join team as t ON t.team_id = tm.team_id where tr_id=? and t.team_id = ?;',[tr_id,team_id])
+    return rows;
+}
 //تجربة للميثود
 // const result_Team=await deleteTournament(7)
 

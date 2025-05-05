@@ -1,7 +1,7 @@
 import express from 'express'
 import path, {dirname} from 'path'
 import { fileURLToPath } from 'url'
-import { getAllTournament, getMatchesInCertainTournament, getRedCards, getScorers }  from './db.js'
+import { getAllTournament, getMatchesInCertainTournament, getRedCards, getScorers, showMatchCaptain,showTeamPlayers,showTeamStaff }  from './db.js'
 import cors from 'cors'
 import dotenv from 'dotenv'
 
@@ -69,12 +69,131 @@ app.get('/Matches', async(req,res) => {
 
 })
 
+
+app.get('/teamStaff', async(req,res) => {
+  const teamId = parseInt(req.query.team_id);
+
+if (!teamId) {
+  return res.status(400).json({ error: "Tournament ID is required" });
+}
+
+
+
+
+try {
+  const staff = await showTeamStaff(teamId)
+  
+
+  res.json(staff);
+  
+  
+} catch (err) {
+  console.error('Query failed:', err);
+  res.status(500).json({ error: 'Database query failed' });
+}
+
+
+
+
+  
+  
+
+})
+
+
+
+
+app.get('/teamPlayers', async(req,res) => {
+  const tournamentId = parseInt(req.query.tr_id);
+
+if (!tournamentId) {
+  return res.status(400).json({ error: "Tournament ID is required" });
+}
+
+
+
+
+try {
+  const players = await showTeamPlayers(tournamentId)
+  
+
+  res.json(players);
+  
+  
+} catch (err) {
+  console.error('Query failed:', err);
+  res.status(500).json({ error: 'Database query failed' });
+}
+
+
+
+
+  
+  
+
+})
+
+
+
+app.get('/matchCaptain', async(req,res) => {
+  const tournamentId = parseInt(req.query.tr_id);
+
+if (!tournamentId) {
+  return res.status(400).json({ error: "Tournament ID is required" });
+}
+
+
+
+
+try {
+  const players = await showTeamPlayers(tournamentId)
+  
+
+  res.json(players);
+  
+  //res.json(matches)
+  //console.log(matches)
+} catch (err) {
+  console.error('Query failed:', err);
+  res.status(500).json({ error: 'Database query failed' });
+}
+
+
+
+
+  
+  
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const scorers = await getScorers();
 app.get('/Scorers', (req,res) => {
 
     res.json(scorers)
     console.log(scorers)
     
+
+})
+
+
+app.get('/teams', (req,res) => {
+
+  res.json(scorers)
+  console.log(scorers)
+  
 
 })
 
@@ -87,6 +206,8 @@ app.get('/redCards', (req,res) => {
     
 
 })
+
+
 
 
 app.listen(PORT, ()=>{
