@@ -98,13 +98,15 @@ async function isPlayerValid(id, tr_id) {
 //  console.log("no clue ")
 //  }
 
-export async function showMatchCaptain(match_no, team_id) {
+export async function showMatchCaptain(match_no, team_id,tr_id) {
   const [rows] = await pool.query(
-    "select match_no,tm.team_id,player_captain,p.name,tr_id from match_captain as mc JOIN person as p ON p.kfupm_id = mc.player_captain JOIN tournament_team as tm on tm.team_id=mc.team_id where match_no = ? and mc.team_id =?;",
-    [match_no, team_id]
+    "select match_no,tm.team_id,player_captain,p.name,tr_id from match_captain as mc JOIN person as p ON p.kfupm_id = mc.player_captain JOIN tournament_team as tm on tm.team_id=mc.team_id where match_no = ? and mc.team_id =? and tr_id=?;",
+    [match_no, team_id,tr_id]
   );
   return rows;
 }
+const capResult = await showMatchCaptain(1,1214);
+console.log(capResult)
 
 export async function showTeamStaff(team_id) {
   const [rows] = await pool.query(
@@ -114,10 +116,15 @@ export async function showTeamStaff(team_id) {
   return rows;
 }
 
-export async function showTeamPlayers(tr_id, team_id) {
+export async function showTeamPlayers( team_id) {
+//   const [rows] = await pool.query(
+//     "select p.name, t.team_id  from player pr JOIN team_player as tm ON tm.player_id = pr.player_id JOIN person p ON p.kfupm_id=pr.player_id Join team as t ON t.team_id = tm.team_id where tr_id=? and t.team_id = ?;",
+//     [tr_id, team_id]
+//   );
+
   const [rows] = await pool.query(
-    "select p.name, t.team_id  from player pr JOIN team_player as tm ON tm.player_id = pr.player_id JOIN person p ON p.kfupm_id=pr.player_id Join team as t ON t.team_id = tm.team_id where tr_id=? and t.team_id = ?;",
-    [tr_id, team_id]
+    "select distinct p.name, t.team_id, p.kfupm_id  from player pr JOIN team_player as tm ON tm.player_id = pr.player_id JOIN person p ON p.kfupm_id=pr.player_id Join team as t ON t.team_id = tm.team_id where  t.team_id = ?;",
+    [team_id]
   );
   return rows;
 }

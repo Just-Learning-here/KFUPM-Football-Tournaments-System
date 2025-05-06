@@ -170,7 +170,7 @@ export default function MainPage() {
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex flex-col items-center text-center">
                     <button onClick={() =>   navigate(
-    `/team?tr_id=${encodeURIComponent(match.tr_id)}&team_id=${encodeURIComponent(match.team_id1)}&match_no=${encodeURIComponent(match.match_no)}&team_name=${encodeURIComponent(match.team1_name)}`
+    `/team?tr_id=${encodeURIComponent(match.tr_id)}&team_id=${encodeURIComponent(match.team1_id)}&match_no=${encodeURIComponent(match.match_no)}&team_name=${encodeURIComponent(match.team1_name)}`
   )}>
                       
                       <span className="text-sm font-bold hover:underline">
@@ -183,7 +183,7 @@ export default function MainPage() {
                   </span>
                   <div className="flex flex-col items-center text-center">
                     <button onClick={() =>   navigate(
-    `/team?tr_id=${encodeURIComponent(match.tr_id)}&team_id=${encodeURIComponent(match.team_id2)}&match_no=${encodeURIComponent(match.match_no)}&team_name=${encodeURIComponent(match.team2_name)}`
+    `/team?tr_id=${encodeURIComponent(match.tr_id)}&team_id=${encodeURIComponent(match.team2_id)}&match_no=${encodeURIComponent(match.match_no)}&team_name=${encodeURIComponent(match.team2_name)}`
   )}>
                       <span className="text-sm font-bold hover:underline">
                         {match.team2_name}

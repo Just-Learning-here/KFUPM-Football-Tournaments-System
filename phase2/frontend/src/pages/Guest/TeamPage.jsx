@@ -29,31 +29,25 @@ export default function TeamProfilePage() {
   }, [teamId]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:6969/matchCaptain?match_no=${matchNo}&team_id=${teamId}`)
+    fetch(`http://127.0.0.1:6969/matchCaptain?match_no=${matchNo}&team_id=${teamId}&tr_id=${tournamentId}`)
       .then((res) => res.json())
       .then((data) => setTeamCaptain(data))
       .catch((err) => console.error("Error fetching team info:", err));
 
 
-  }, [matchNo,teamId]);
+  }, [matchNo,teamId,tournamentId]);
 
 
   useEffect(() => {
-    fetch(`http://localhost:6969/teamPlayers?tr_id=${tournamentId}&team_id=${teamId}`)
+    fetch(`http://localhost:6969/teamPlayers?team_id=${teamId}`)
       .then((res) => res.json())
       .then((data) => setTeamPlayers(data))
       .catch((err) => console.error("Error fetching team members:", err));
 
-  }, [tournamentId,teamId]);
+  }, [teamId]);
 
-  
-  console.log(`captain ${teamCaptain}`);
-  console.log(teamCaptain);
-  console.log(`Match number: ${matchNo}`);
-
-  console.log('did anything happen?');
-  //console.log(staff)
-
+  const captainResult= teamCaptain;
+console.log(captainResult);
 
 
 
@@ -121,12 +115,16 @@ export default function TeamProfilePage() {
           </div>
           <div className="bg-white/10 p-5 rounded-2xl shadow-md">
             <h3 className="text-lg font-semibold mb-1">Captain</h3>
-
-            {teamCaptain ? (
-            <div className="bg-white/10 p-3 rounded text-white">{teamCaptain.name}</div>
-            ) : (
+            {teamCaptain && teamCaptain.length > 0 ? (
+          teamCaptain.map((captain) => (
+            <div key={captain.id} className="bg-white/10 p-3 rounded text-white">
+            {captain.name}
+            </div>
+                 ))
+                ) : (
             <p className="text-gray-300">No captain assigned</p>
-            )}
+                )}
+
 
             <p className="text-sm text-gray-200">
               {/* {getMemberByRole("captain")?.name || "Not assigned"} */}

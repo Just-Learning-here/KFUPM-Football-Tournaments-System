@@ -80,18 +80,18 @@ app.get("/teamStaff", async (req, res) => {
 });
 
 app.get("/teamPlayers", async (req, res) => {
-  const tournamentId = parseInt(req.query.tr_id);
+  // const tournamentId = parseInt(req.query.tr_id);
   const teamID = parseInt(req.query.team_id);
 
-  if (!tournamentId && !teamID) {
+  if (  !teamID) {
     return res
       .status(400)
       .json({ error: "Tournament ID is required and Team ID is required" });
   }
 
   try {
-    const players = await showTeamPlayers(tournamentId, teamID);
-
+    // const players = await showTeamPlayers(tournamentId, teamID);
+    const players = await showTeamPlayers(teamID);
     res.json(players);
   } catch (err) {
     console.error("Query failed:", err);
@@ -102,13 +102,14 @@ app.get("/teamPlayers", async (req, res) => {
 app.get("/matchCaptain", async (req, res) => {
   const matchNo = parseInt(req.query.match_no);
   const teamId = parseInt(req.query.team_id);
+  const tournamentId = parseInt(req.query.tr_id);
 
-  if (!matchNo && !teamId) {
+  if (!matchNo && !teamId && !tournamentId) {
     return res.status(400).json({ error: "Tournament ID is required" });
   }
 
   try {
-    const players = await showMatchCaptain(matchNo, teamId);
+    const players = await showMatchCaptain(matchNo, teamId,tournamentId);
     res.json(players);
   } catch (err) {
     console.error("Query failed:", err);
