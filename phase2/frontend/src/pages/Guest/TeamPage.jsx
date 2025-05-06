@@ -1,25 +1,67 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function TeamProfilePage() {
-  const { teamId } = useParams();
-  const [teamInfo, setTeamInfo] = useState(null);
-  const [members, setMembers] = useState([]);
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const tournamentId = params.get('tr_id');
+  const teamId = params.get('team_id');
+  const teamName = params.get('team_name');
+  const matchNo = params.get('match_no');
+
+
+
+  const [teamStaff, setTeamStaff] = useState([]);
+  const [teamPlayers, setTeamPlayers] = useState([]);
+  const [teamCaptain, setTeamCaptain] = useState([]);
+  
+  
+
+  
 
   useEffect(() => {
-    fetch(`http://localhost:6969/teams/${teamId}`)
+    fetch(`http://localhost:6969/teamStaff/?team_id=${teamId}`)
       .then((res) => res.json())
-      .then((data) => setTeamInfo(data))
+      .then((data) => setTeamStaff(data))
       .catch((err) => console.error("Error fetching team info:", err));
 
-    fetch(`http://localhost:6969/teams/${teamId}/members`)
-      .then((res) => res.json())
-      .then((data) => setMembers(data))
-      .catch((err) => console.error("Error fetching team members:", err));
+    
   }, [teamId]);
 
-  const getMemberByRole = (role) => members.find((m) => m.role === role);
-  const players = members.filter((m) => m.role === "player");
+  useEffect(() => {
+    fetch(`http://127.0.0.1:6969/matchCaptain?match_no=${matchNo}&team_id=${teamId}`)
+      .then((res) => res.json())
+      .then((data) => setTeamCaptain(data))
+      .catch((err) => console.error("Error fetching team info:", err));
+
+
+  }, [matchNo,teamId]);
+
+
+  useEffect(() => {
+    fetch(`http://localhost:6969/teamPlayers?tr_id=${tournamentId}&team_id=${teamId}`)
+      .then((res) => res.json())
+      .then((data) => setTeamPlayers(data))
+      .catch((err) => console.error("Error fetching team members:", err));
+
+  }, [tournamentId,teamId]);
+
+  
+  console.log(`captain ${teamCaptain}`);
+  console.log(teamCaptain);
+  console.log(`Match number: ${matchNo}`);
+
+  console.log('did anything happen?');
+  //console.log(staff)
+
+
+
+
+
+
+
+ // const getMemberByRole = (role) => members.find((m) => m.role === role);
+  //const players = members.filter((m) => m.role === "player");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white p-6 font-sans">
@@ -28,26 +70,66 @@ export default function TeamProfilePage() {
       </header>
 
       <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {teamInfo?.team_name || "Teamname"}
+      <h2 className="text-2xl font-bold mb-6 text-center">
+          {teamName}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white/10 p-5 rounded-2xl shadow-md">
-            <h3 className="text-lg font-semibold mb-1">Manager</h3>
+          <h3 className="text-lg font-semibold mb-4 text-white">Staff</h3>
+
+{teamStaff.length > 0 ? (
+  <div className="grid grid-cols-2 gap-4 text-white">
+    {/* Column Headers */}
+    <div className="font-bold border-b pb-2">Name</div>
+    <div className="font-bold border-b pb-2">Support Type</div>
+
+    {/* Data Rows */}
+    {teamStaff.filter((staff) => staff.support_type !== 'CH').map((staff) => (
+        <React.Fragment key={staff.id}>
+          <div className="bg-white/10 p-3 rounded">{staff.name}</div>
+          <div className="bg-white/10 p-3 rounded">{staff.support_type}</div>
+        </React.Fragment>
+      ))}
+  </div>
+) : (
+  <p className="text-gray-400">This team does not have a staff.</p>
+)}
+
+
+         
             <p className="text-sm text-gray-200">
-              {getMemberByRole("manager")?.name || "Not assigned"}
+              {/* {getMemberByRole("manager")?.name || "Not assigned"} */}
             </p>
           </div>
           <div className="bg-white/10 p-5 rounded-2xl shadow-md">
             <h3 className="text-lg font-semibold mb-1">Coach</h3>
+            {teamStaff.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {teamStaff.filter((coach) => coach.support_type === 'CH').map((coach) => (
+        <React.Fragment key={coach.id}>
+          <div className="bg-white/10 p-3 rounded">{coach.name}</div>
+        </React.Fragment>
+      ))}
+    </div>
+    ) : (
+    <p className="text-gray-400">this team does not have coaches.</p>
+    )}
+
             <p className="text-sm text-gray-200">
-              {getMemberByRole("coach")?.name || "Not assigned"}
+              {/* {getMemberByRole("coach")?.name || "Not assigned"} */}
             </p>
           </div>
           <div className="bg-white/10 p-5 rounded-2xl shadow-md">
             <h3 className="text-lg font-semibold mb-1">Captain</h3>
+
+            {teamCaptain ? (
+            <div className="bg-white/10 p-3 rounded text-white">{teamCaptain.name}</div>
+            ) : (
+            <p className="text-gray-300">No captain assigned</p>
+            )}
+
             <p className="text-sm text-gray-200">
-              {getMemberByRole("captain")?.name || "Not assigned"}
+              {/* {getMemberByRole("captain")?.name || "Not assigned"} */}
             </p>
           </div>
         </div>
@@ -55,9 +137,9 @@ export default function TeamProfilePage() {
 
       <section>
         <h2 className="text-xl font-bold mb-4">Players</h2>
-        {players.length > 0 ? (
+        {teamPlayers.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {players.map((player) => (
+            {teamPlayers.map((player) => (
               <div
                 key={player.id}
                 className="bg-white/10 p-4 rounded-xl shadow-sm"

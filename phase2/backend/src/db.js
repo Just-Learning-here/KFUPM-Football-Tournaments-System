@@ -111,14 +111,14 @@ async function deleteTournament(tr_id) {
 }
 
 export async function showMatchCaptain(match_no,team_id){
-    const [rows] = await pool.query('select p.name from match_captain as mc JOIN person as p ON p.kfupm_id = mc.player_captain where match_no = ? and team_id =?;',[match_no,team_id])
+    const [rows] = await pool.query('select match_no,tm.team_id,player_captain,p.name,tr_id from match_captain as mc JOIN person as p ON p.kfupm_id = mc.player_captain JOIN tournament_team as tm on tm.team_id=mc.team_id where match_no = ? and mc.team_id =?;',[match_no,team_id])
     return rows;
 }
 
 
 
 export async function showTeamStaff(team_id){
-    const [rows] = await pool.query('select p.name,team_name, support_type from team_support as ts Join team as t ON t.team_id = ts.team_id JOIN person as p ON p.kfupm_id = ts.support_id where t.team_id=?;',[team_id])
+    const [rows] = await pool.query('select kfupm_id as id ,p.name,team_name, support_type from team_support as ts Join team as t ON t.team_id = ts.team_id JOIN person as p ON p.kfupm_id = ts.support_id where t.team_id=?;',[team_id])
     return rows;
     
 }
@@ -164,7 +164,7 @@ async function getMatches() {
 
 export async function getMatchesInCertainTournament(tr_id) {
     //const lengthOfTournaments = getAllTournament.length()
-    const[rows] = await pool.query('SELECT tm.tr_id, t1.team_name AS team1_name, t2.team_name AS team2_name, md.match_no, tm.team_group, mp.results,mp.goal_score,mp.play_date FROM match_played AS mp JOIN tournament_team AS tm ON mp.team_id1 = tm.team_id JOIN team AS t1 ON t1.team_id = mp.team_id1 JOIN team AS t2 ON t2.team_id = mp.team_id2 JOIN match_details AS md ON tm.team_id = md.team_id AND md.match_no = mp.match_no WHERE tm.tr_id = ? ORDER BY mp.play_date, tm.tr_id, md.team_id;',[tr_id])
+    const[rows] = await pool.query('SELECT tm.tr_id, t1.team_name AS team1_name, t2.team_name AS team2_name, md.match_no, tm.team_group, mp.results,mp.goal_score,mp.play_date, t1.team_id as team_id1,t2.team_id as team_id2,md.match_no FROM match_played AS mp JOIN tournament_team AS tm ON mp.team_id1 = tm.team_id JOIN team AS t1 ON t1.team_id = mp.team_id1 JOIN team AS t2 ON t2.team_id = mp.team_id2 JOIN match_details AS md ON tm.team_id = md.team_id AND md.match_no = mp.match_no WHERE tm.tr_id = ? ORDER BY mp.play_date, tm.tr_id, md.team_id;',[tr_id])
     return rows 
 
 }

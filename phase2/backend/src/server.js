@@ -79,11 +79,8 @@ if (!teamId) {
 
 
 
-
 try {
   const staff = await showTeamStaff(teamId)
-  
-
   res.json(staff);
   
   
@@ -91,13 +88,7 @@ try {
   console.error('Query failed:', err);
   res.status(500).json({ error: 'Database query failed' });
 }
-
-
-
-
   
-  
-
 })
 
 
@@ -105,16 +96,17 @@ try {
 
 app.get('/teamPlayers', async(req,res) => {
   const tournamentId = parseInt(req.query.tr_id);
+  const teamID = parseInt(req.query.team_id);
 
-if (!tournamentId) {
-  return res.status(400).json({ error: "Tournament ID is required" });
+if (!tournamentId && ! teamID) {
+  return res.status(400).json({ error: "Tournament ID is required and Team ID is required" });
 }
 
 
 
 
 try {
-  const players = await showTeamPlayers(tournamentId)
+  const players = await showTeamPlayers(tournamentId,teamID)
   
 
   res.json(players);
@@ -136,9 +128,11 @@ try {
 
 
 app.get('/matchCaptain', async(req,res) => {
-  const tournamentId = parseInt(req.query.tr_id);
+  const matchNo = parseInt(req.query.match_no);
+  const teamId = parseInt(req.query.team_id);
 
-if (!tournamentId) {
+
+if (!matchNo && !teamId) {
   return res.status(400).json({ error: "Tournament ID is required" });
 }
 
@@ -146,24 +140,13 @@ if (!tournamentId) {
 
 
 try {
-  const players = await showTeamPlayers(tournamentId)
-  
-
+  const players = await showMatchCaptain(matchNo,teamId)
   res.json(players);
-  
-  //res.json(matches)
-  //console.log(matches)
+
 } catch (err) {
   console.error('Query failed:', err);
   res.status(500).json({ error: 'Database query failed' });
 }
-
-
-
-
-  
-  
-
 })
 
 

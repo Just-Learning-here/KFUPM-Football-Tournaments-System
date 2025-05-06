@@ -115,6 +115,8 @@ export default function MainPage() {
       .catch((err) => console.error("Error fetching data:", err));
   }, []);
 
+  console.log(fetchedMatches)
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white p-6 font-sans">
       <header className="flex justify-between items-center mb-10 px-2 md:px-4">
@@ -167,7 +169,10 @@ export default function MainPage() {
               >
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex flex-col items-center text-center">
-                    <button onClick={() => navigate(`/team/${match.team1_id}`)}>
+                    <button onClick={() =>   navigate(
+    `/team?tr_id=${encodeURIComponent(match.tr_id)}&team_id=${encodeURIComponent(match.team_id1)}&match_no=${encodeURIComponent(match.match_no)}&team_name=${encodeURIComponent(match.team1_name)}`
+  )}>
+                      
                       <span className="text-sm font-bold hover:underline">
                         {match.team1_name}
                       </span>
@@ -177,7 +182,9 @@ export default function MainPage() {
                     {match.goal_score}
                   </span>
                   <div className="flex flex-col items-center text-center">
-                    <button onClick={() => navigate(`/team/${match.team2_id}`)}>
+                    <button onClick={() =>   navigate(
+    `/team?tr_id=${encodeURIComponent(match.tr_id)}&team_id=${encodeURIComponent(match.team_id2)}&match_no=${encodeURIComponent(match.match_no)}&team_name=${encodeURIComponent(match.team2_name)}`
+  )}>
                       <span className="text-sm font-bold hover:underline">
                         {match.team2_name}
                       </span>
