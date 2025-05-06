@@ -164,7 +164,9 @@ async function getMatches() {
 
 export async function getMatchesInCertainTournament(tr_id) {
     //const lengthOfTournaments = getAllTournament.length()
-    const[rows] = await pool.query('SELECT tm.tr_id, t1.team_name AS team1_name, t2.team_name AS team2_name, md.match_no, tm.team_group, mp.results,mp.goal_score,mp.play_date, t1.team_id as team_id1,t2.team_id as team_id2,md.match_no FROM match_played AS mp JOIN tournament_team AS tm ON mp.team_id1 = tm.team_id JOIN team AS t1 ON t1.team_id = mp.team_id1 JOIN team AS t2 ON t2.team_id = mp.team_id2 JOIN match_details AS md ON tm.team_id = md.team_id AND md.match_no = mp.match_no WHERE tm.tr_id = ? ORDER BY mp.play_date, tm.tr_id, md.team_id;',[tr_id])
+    // const[rows] = await pool.query('SELECT tm.tr_id, t1.team_name AS team1_name, t2.team_name AS team2_name, md.match_no, tm.team_group, mp.results,mp.goal_score,mp.play_date, t1.team_id as team_id1,t2.team_id as team_id2,md.match_no FROM match_played AS mp JOIN tournament_team AS tm ON mp.team_id1 = tm.team_id JOIN team AS t1 ON t1.team_id = mp.team_id1 JOIN team AS t2 ON t2.team_id = mp.team_id2 JOIN match_details AS md ON tm.team_id = md.team_id AND md.match_no = mp.match_no WHERE tm.tr_id = ? ORDER BY mp.play_date, tm.tr_id, md.team_id;',[tr_id])
+    const[rows] = await pool.query('SELECT tt1.tr_id,t1.team_name AS team1_name,t2.team_name AS team2_name,mp.match_no,mp.results,mp.goal_score,mp.play_date,t1.team_id AS team1_id,t2.team_id AS team2_id FROM match_played AS mp JOIN tournament_team AS tt1 ON mp.team_id1 = tt1.team_id JOIN tournament_team AS tt2 ON mp.team_id2 = tt2.team_id JOIN team AS t1 ON mp.team_id1 = t1.team_id JOIN team AS t2 ON mp.team_id2 = t2.team_id WHERE tt1.tr_id = ? AND tt2.tr_id = ? ORDER BY mp.play_date, mp.match_no;',[tr_id,tr_id])
+
     return rows 
 
 }
