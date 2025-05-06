@@ -11,6 +11,7 @@ import {
   showTeamStaff,
   deleteTournament,
   addTournament,
+  verifyAdminCredentials,
 } from "./db.js";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -83,7 +84,7 @@ app.get("/teamPlayers", async (req, res) => {
   // const tournamentId = parseInt(req.query.tr_id);
   const teamID = parseInt(req.query.team_id);
 
-  if (  !teamID) {
+  if (!teamID) {
     return res
       .status(400)
       .json({ error: "Tournament ID is required and Team ID is required" });
@@ -109,7 +110,7 @@ app.get("/matchCaptain", async (req, res) => {
   }
 
   try {
-    const players = await showMatchCaptain(matchNo, teamId,tournamentId);
+    const players = await showMatchCaptain(matchNo, teamId, tournamentId);
     res.json(players);
   } catch (err) {
     console.error("Query failed:", err);
@@ -173,6 +174,33 @@ app.post("/tournament", async (req, res) => {
   } catch (err) {
     console.error("Error adding tournament:", err);
     res.status(500).json({ error: "Failed to add tournament." });
+  }
+});
+
+app.post("/auth/signin", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
+  }
+
+  try {
+    const admin = await verifyAdminCredentials(username, password);
+
+    if (admin) {
+      // Authentication successful
+      res
+        .status(200)
+        .json({ success: true, message: "Authentication successful" });
+    } else {
+      // Authentication failed
+      res.status(401).json({ success: false, error: "Invalid credentials" });
+    }
+  } catch (err) {
+    console.error("Authentication error:", err);
+    res.status(500).json({ error: "Server error during authentication" });
   }
 });
 
