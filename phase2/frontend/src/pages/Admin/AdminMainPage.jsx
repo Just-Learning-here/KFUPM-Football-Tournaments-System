@@ -30,13 +30,22 @@ export default function AdminTournamentPage() {
       })
       .catch((err) => console.error("Error adding tournament:", err));
   };
-
-  const handleDeleteTournament = (tr_id) => {
-    fetch(`http://localhost:6969/tournament/${tr_id}`, {
+  // In React component
+  const deleteTournament = (tr_id) => {
+    fetch(`http://localhost:6969/deleteTournament/${tr_id}`, {
       method: "DELETE",
     })
-      .then(() => fetchTournaments())
-      .catch((err) => console.error("Error deleting tournament:", err));
+      .then((res) => {
+        if (!res.ok) throw new Error("Deletion failed");
+        return res.json();
+      })
+      .then(() => {
+        setTournaments((prev) => prev.filter((t) => t.tr_id !== tr_id));
+      })
+      .catch((err) => {
+        console.error("Deletion error:", err);
+        // Show error message to user
+      });
   };
 
   const handleAddTeam = () => {
@@ -139,7 +148,7 @@ export default function AdminTournamentPage() {
             >
               <span>{tournament.tr_name}</span>
               <button
-                onClick={() => handleDeleteTournament(tournament.tr_id)}
+                onClick={() => deleteTournament(tournament.tr_id)}
                 className="bg-red-600 hover:bg-red-700 px-4 py-1 rounded-md"
               >
                 Delete
