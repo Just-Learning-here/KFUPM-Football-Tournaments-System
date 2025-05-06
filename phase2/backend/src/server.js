@@ -10,6 +10,7 @@ import {
   showTeamPlayers,
   showTeamStaff,
   deleteTournament,
+  addTournament,
 } from "./db.js";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -28,10 +29,14 @@ app.use(express.json());
 //app.use(express.static(path.join(__dirname,"..//phase2")))
 console.log("Hello world");
 
-const tournaments = await getAllTournament();
-app.get("/tournament", (req, res) => {
-  res.json(tournaments);
-  console.log(tournaments);
+app.get("/tournament", async (req, res) => {
+  try {
+    const tournaments = await getAllTournament();
+    res.json(tournaments);
+  } catch (err) {
+    console.error("Error fetching tournaments:", err);
+    res.status(500).json({ error: "Failed to fetch tournaments" });
+  }
 });
 
 app.get("/Matches", async (req, res) => {
@@ -147,6 +152,26 @@ app.delete("/deleteTournament/:tr_id", async (req, res) => {
     res
       .status(500)
       .json({ error: "Database error while deleting the tournament" });
+  }
+});
+
+app.post("/tournament", async (req, res) => {
+  const { tr_name } = req.body;
+
+  if (!tr_name) {
+    return res.status(400).json({ error: "Tournament name is required." });
+  }
+
+  try {
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 14); // end_date = 14 days from now
+
+    const tournament = await addTournament(tr_name, today, endDate);
+    res.status(201).json(tournament);
+  } catch (err) {
+    console.error("Error adding tournament:", err);
+    res.status(500).json({ error: "Failed to add tournament." });
   }
 });
 

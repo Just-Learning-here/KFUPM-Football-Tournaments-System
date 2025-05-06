@@ -16,12 +16,12 @@ const pool = mysql
 // use export so that you can use it in a different file
 
 // Tournament Admin Functions
-async function addTournament(tr_id, tr_name, start_date, end_date) {
-  const result = await pool.query(
-    "INSERT INTO tournament (tr_id,tr_name,start_date,end_date) VALUES(?,?,?,?)",
-    [tr_id, tr_name, start_date, end_date]
+export async function addTournament(tr_name, start_date, end_date) {
+  const [result] = await pool.query(
+    "INSERT INTO tournament (tr_name, start_date, end_date) VALUES (?, ?, ?)",
+    [tr_name, start_date, end_date]
   );
-  const id = result.tr_id;
+  const id = result.insertId;
   return getTournament(id);
 }
 

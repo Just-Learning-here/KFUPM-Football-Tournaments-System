@@ -16,9 +16,9 @@ export default function AdminTournamentPage() {
       .then((data) => setTournaments(data))
       .catch((err) => console.error("Error fetching tournaments:", err));
   };
-
   const handleAddTournament = () => {
     if (!newTournamentName.trim()) return;
+
     fetch("http://localhost:6969/tournament", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,6 +30,7 @@ export default function AdminTournamentPage() {
       })
       .catch((err) => console.error("Error adding tournament:", err));
   };
+
   // In React component
   const deleteTournament = (tr_id) => {
     fetch(`http://localhost:6969/deleteTournament/${tr_id}`, {
