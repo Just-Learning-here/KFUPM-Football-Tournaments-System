@@ -45,7 +45,7 @@ async function addTeam(team_id, team_name) {
 const team = await getTeam(1229)
 console.log(team)*/
 
-async function selectCaptain(match_no, team_id, player_id) {
+export async function selectCaptain(match_no, team_id, player_id) {
   const result = await pool.query(
     "INSERT INTO match_captain (match_no,team_id,player_captain) VALUES(?,?,?)",
     [match_no, team_id, player_id]
@@ -59,15 +59,16 @@ async function selectCaptain(match_no, team_id, player_id) {
 // console.log(captains)
 
 // get a checker when an admin tries to approve a player join when the player is already in a team in that tournament
-async function approvePlayerJoin(player_id, team_id, tr_id) {
+export async function approvePlayerJoin(player_id, team_id, tr_id) {
   const qualified = await isPlayerValid(player_id, tr_id);
   if (qualified) {
     const result = await pool.query(
       "INSERT INTO team_player (player_id,team_id,tr_id) VALUES(?,?,?)",
       [player_id, team_id, tr_id]
     );
+    return true;
   } else {
-    console.log("This player is already playing in this tournament");
+    throw new Error("This player is already playing in this tournament");
   }
 }
 
@@ -78,7 +79,6 @@ async function isPlayerValid(id, tr_id) {
     "SELECT player_id FROM team_player WHERE tr_id=?",
     [tr_id]
   );
-  const qualified = false;
   for (let index in players) {
     if (players[index].player_id == id) {
       return false;
@@ -211,9 +211,6 @@ export async function verifyAdminCredentials(username, password) {
 
 //System Functions
 
-
-
-
 export async function insertTeamById(team_id, team_name, tr_id) {
   try {
     // Check if the team_id already exists
@@ -227,31 +224,35 @@ export async function insertTeamById(team_id, team_name, tr_id) {
     // }
 
     // Begin transaction
-    await pool.query('START TRANSACTION');
+    await pool.query("START TRANSACTION");
 
     // Insert into team with team_group
     await pool.query(
-      'INSERT INTO team (team_id, team_name) VALUES (?, ?)',  // Use placeholders
+      "INSERT INTO team (team_id, team_name) VALUES (?, ?)", // Use placeholders
       [team_id, team_name]
     );
 
     // Insert into tournament_team
     await pool.query(
-      'INSERT INTO tournament_team (tr_id, team_id) VALUES (?, ?)', 
-      [tr_id, team_id,'N',  0,0, 0, 0, 0,  0, 0,   0,  1] // default for other values
+      "INSERT INTO tournament_team (tr_id, team_id) VALUES (?, ?)",
+      [tr_id, team_id, "N", 0, 0, 0, 0, 0, 0, 0, 0, 1] // default for other values
     );
-    
-
-
-
 
     // Commit transaction
-    await pool.query('COMMIT');
+    await pool.query("COMMIT");
 
     return { success: true, team_id };
   } catch (error) {
     // Rollback transaction in case of an error
-    await pool.query('ROLLBACK');
+    await pool.query("ROLLBACK");
     return { success: false, error: error.message };
   }
+}
+
+export async function getTeamsInTournament(tr_id) {
+  const [rows] = await pool.query(
+    "SELECT t.team_id, t.team_name FROM team t JOIN tournament_team tt ON t.team_id = tt.team_id WHERE tt.tr_id = ?",
+    [tr_id]
+  );
+  return rows;
 }

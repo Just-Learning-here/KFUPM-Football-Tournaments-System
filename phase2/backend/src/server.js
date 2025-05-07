@@ -12,7 +12,10 @@ import {
   deleteTournament,
   addTournament,
   verifyAdminCredentials,
-  insertTeamById
+  insertTeamById,
+  selectCaptain,
+  approvePlayerJoin,
+  getTeamsInTournament,
 } from "./db.js";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -130,10 +133,6 @@ app.get("/teams", (req, res) => {
   console.log(scorers);
 });
 
-
-
-
-
 const redCards = await getRedCards();
 app.get("/redCards", (req, res) => {
   res.json(redCards);
@@ -162,27 +161,34 @@ app.delete("/deleteTournament/:tr_id", async (req, res) => {
   }
 });
 
-app.post('/team', async (req, res) => {
-  const { tr_id,  team_id,team_name } = req.body;
+app.post("/team", async (req, res) => {
+  const { tr_id, team_id, team_name } = req.body;
 
-  if (!team_id || !team_name || !tr_id ) {
-    return res.status(400).json({ success: false, message: 'Missing fields' });
+  if (!team_id || !team_name || !tr_id) {
+    return res.status(400).json({ success: false, message: "Missing fields" });
   }
 
   try {
     const result = await insertTeamById(team_id, team_name, tr_id);
-    console.log(result)
+    console.log(result);
 
     if (result.success) {
-      res.status(201).json({ success: true, message: 'Team inserted', team_id: result.team_id });
+      res.status(201).json({
+        success: true,
+        message: "Team inserted",
+        team_id: result.team_id,
+      });
     } else {
-      res.status(409).json({ success: false, message: result.message || result.error });
+      res
+        .status(409)
+        .json({ success: false, message: result.message || result.error });
     }
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
   }
 });
-
 
 app.post("/tournament", async (req, res) => {
   const { tr_name } = req.body;
@@ -228,6 +234,58 @@ app.post("/auth/signin", async (req, res) => {
   } catch (err) {
     console.error("Authentication error:", err);
     res.status(500).json({ error: "Server error during authentication" });
+  }
+});
+
+app.post("/selectCaptain", async (req, res) => {
+  const { match_no, team_id, player_id } = req.body;
+
+  if (!match_no || !team_id || !player_id) {
+    return res
+      .status(400)
+      .json({ error: "Match number, team ID, and player ID are required" });
+  }
+
+  try {
+    await selectCaptain(match_no, team_id, player_id);
+    res.json({ success: true, message: "Captain selected successfully" });
+  } catch (err) {
+    console.error("Query failed:", err);
+    res.status(500).json({ error: "Database query failed" });
+  }
+});
+
+app.post("/approvePlayer", async (req, res) => {
+  const { player_id, team_id, tr_id } = req.body;
+
+  if (!player_id || !team_id || !tr_id) {
+    return res
+      .status(400)
+      .json({ error: "Player ID, team ID, and tournament ID are required" });
+  }
+
+  try {
+    await approvePlayerJoin(player_id, team_id, tr_id);
+    res.json({ success: true, message: "Player approved successfully" });
+  } catch (err) {
+    console.error("Query failed:", err);
+    res.status(500).json({ error: "Database query failed" });
+  }
+});
+
+app.get("/tournamentTeams", async (req, res) => {
+  const tr_id = parseInt(req.query.tr_id);
+
+  if (!tr_id) {
+    return res.status(400).json({ error: "Tournament ID is required" });
+  }
+
+  try {
+    const teams = await getTeamsInTournament(tr_id);
+    res.json(teams);
+  } catch (err) {
+    console.error("Error fetching teams:", err);
+    res.status(500).json({ error: "Failed to fetch teams" });
   }
 });
 
