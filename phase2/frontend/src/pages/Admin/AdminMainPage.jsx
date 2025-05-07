@@ -6,7 +6,6 @@ export default function AdminTournamentPage() {
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [newTournamentName, setNewTournamentName] = useState("");
   const [teamName, setTeamName] = useState("");
-  const [teamId, setTeamId] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teams, setTeams] = useState([]);
   const [players, setPlayers] = useState([]);
@@ -26,10 +25,10 @@ export default function AdminTournamentPage() {
   }, [selectedTournament]);
 
   useEffect(() => {
-    if (selectedTeam) {
+    if (selectedTeam && selectedTournament) {
       fetchPlayers();
     }
-  }, [selectedTeam]);
+  }, [selectedTeam, selectedTournament]);
 
   const fetchTournaments = () => {
     fetch("http://localhost:6969/tournament")
@@ -57,7 +56,10 @@ export default function AdminTournamentPage() {
   };
 
   const fetchPlayers = () => {
-    fetch(`http://localhost:6969/teamPlayers?team_id=${selectedTeam}`)
+    if (!selectedTeam || !selectedTournament) return;
+    fetch(
+      `http://localhost:6969/eligiblePlayers?team_id=${selectedTeam}&tr_id=${selectedTournament}`
+    )
       .then((res) => res.json())
       .then((data) => setPlayers(data))
       .catch((err) => console.error("Error fetching players:", err));
@@ -93,33 +95,67 @@ export default function AdminTournamentPage() {
       });
   };
 
-  const handleAddTeam = () => {
-    if (!teamId || !teamName.trim() || !selectedTournament) {
-      console.warn("Team ID, Name, and Tournament ID are required.");
+  const handleAddTeamToTournament = async () => {
+    if (!selectedTournament || !teamName) {
+      alert("Please select a tournament and enter team name");
       return;
     }
-    fetch("http://localhost:6969/team", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        team_id: teamId,
-        team_name: teamName,
-        tr_id: selectedTournament,
-      }),
-    })
-      .then(async (res) => {
-        const result = await res.json();
-        if (!res.ok) {
-          throw new Error(result.message || "Failed to add team");
-        }
-        alert(`✅ Team added: ${teamName}`);
-        setTeamId("");
-        setTeamName("");
-      })
-      .catch((err) => {
-        console.error("Error adding team:", err);
-        alert("❌ Failed to add team. See console.");
+    try {
+      // First, add the team to the teams table
+      const teamResponse = await fetch("http://localhost:6969/team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ team_name: teamName }),
       });
+
+      if (!teamResponse.ok) {
+        const errorData = await teamResponse.json();
+        throw new Error(errorData.message || "Failed to create team");
+      }
+
+      const teamData = await teamResponse.json();
+      console.log("Team created:", teamData);
+      const newTeamId = teamData.team_id;
+
+      // Then, associate the team with the tournament
+      const response = await fetch("http://localhost:6969/tournamentTeams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          team_id: newTeamId,
+          tr_id: selectedTournament,
+          team_group: "A", // or allow user to select group
+          match_played: 0,
+          won: 0,
+          draw: 0,
+          lost: 0,
+          goal_for: 0,
+          goal_against: 0,
+          goal_diff: 0,
+          points: 0,
+          group_position: 0,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Failed to add team to tournament"
+        );
+      }
+
+      const result = await response.json();
+      console.log("Team added to tournament:", result);
+
+      setTeamName("");
+      await fetchTeams(); // Refresh teams list for the selected tournament
+      alert("Team added to tournament successfully");
+    } catch (error) {
+      console.error("Error adding team to tournament:", error);
+      alert(
+        error.message || "Failed to add team to tournament. Please try again."
+      );
+    }
   };
 
   const handleLogout = () => {
@@ -158,14 +194,16 @@ export default function AdminTournamentPage() {
 
   const handleApprovePlayer = () => {
     if (!selectedTeam || !selectedPlayer || !selectedTournament) {
-      alert("Please select a team, player, and tournament");
+      alert(
+        "Please select a team, enter a player name, and select a tournament"
+      );
       return;
     }
     fetch("http://localhost:6969/approvePlayer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        player_id: selectedPlayer,
+        player_name: selectedPlayer,
         team_id: selectedTeam,
         tr_id: selectedTournament,
       }),
@@ -173,10 +211,12 @@ export default function AdminTournamentPage() {
       .then(async (res) => {
         const result = await res.json();
         if (!res.ok) {
-          throw new Error(result.message || "Failed to approve player");
+          throw new Error(
+            result.message || result.error || "Failed to approve player"
+          );
         }
         alert("✅ Player approved successfully");
-        setSelectedPlayer(null);
+        setSelectedPlayer("");
         fetchPlayers();
       })
       .catch((err) => {
@@ -263,35 +303,46 @@ export default function AdminTournamentPage() {
           <h2 className="text-xl font-bold mb-4 text-white/90">
             Team Management
           </h2>
+          <div className="flex justify-center mb-6">
+            <div className="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-400 shadow-lg rounded-2xl px-6 py-4 border-2 border-blue-700">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <label className="text-white text-lg font-semibold mr-2">
+                Select Tournament:
+              </label>
+              <select
+                value={selectedTournament || ""}
+                onChange={(e) => setSelectedTournament(Number(e.target.value))}
+                className="px-4 py-2 rounded-lg bg-white text-blue-800 font-semibold border border-blue-300 focus:border-blue-700 focus:outline-none transition-colors text-base min-w-[200px] shadow-sm"
+              >
+                <option value="" disabled>
+                  Select Tournament
+                </option>
+                {tournaments.map((t) => (
+                  <option key={t.tr_id} value={t.tr_id}>
+                    {t.tr_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl shadow-lg">
               <h3 className="text-lg font-semibold mb-3 text-white/90">
                 Add Team to Tournament
               </h3>
               <div className="flex flex-col gap-3">
-                <select
-                  value={selectedTournament || ""}
-                  onChange={(e) =>
-                    setSelectedTournament(Number(e.target.value))
-                  }
-                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-                >
-                  <option value="" disabled>
-                    Select Tournament
-                  </option>
-                  {tournaments.map((t) => (
-                    <option key={t.tr_id} value={t.tr_id}>
-                      {t.tr_name}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="Team ID"
-                  value={teamId}
-                  onChange={(e) => setTeamId(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-                />
                 <input
                   type="text"
                   placeholder="Team Name"
@@ -300,14 +351,13 @@ export default function AdminTournamentPage() {
                   className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
                 />
                 <button
-                  onClick={handleAddTeam}
+                  onClick={handleAddTeamToTournament}
                   className="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-lg shadow-md transition-colors text-sm"
                 >
                   Add Team
                 </button>
               </div>
             </div>
-
             <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl shadow-lg">
               <h3 className="text-lg font-semibold mb-3 text-white/90">
                 Select Team Captain
@@ -363,45 +413,40 @@ export default function AdminTournamentPage() {
           <h2 className="text-xl font-bold mb-4 text-white/90">
             Player Management
           </h2>
-          <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl shadow-lg">
-            <h3 className="text-lg font-semibold mb-3 text-white/90">
-              Approve Player to Join Team
-            </h3>
-            <div className="flex flex-col gap-3">
-              <select
-                value={selectedTeam || ""}
-                onChange={(e) => setSelectedTeam(Number(e.target.value))}
-                className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-              >
-                <option value="" disabled>
-                  Select Team
-                </option>
-                {teams.map((team) => (
-                  <option key={team.team_id} value={team.team_id}>
-                    {team.team_name}
+          <div className="flex justify-center">
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl shadow-lg w-full max-w-xl">
+              <h3 className="text-lg font-semibold mb-3 text-white/90">
+                Approve Player to Join Team
+              </h3>
+              <div className="flex flex-col gap-3">
+                <select
+                  value={selectedTeam || ""}
+                  onChange={(e) => setSelectedTeam(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                >
+                  <option value="" disabled>
+                    Select Team
                   </option>
-                ))}
-              </select>
-              <select
-                value={selectedPlayer || ""}
-                onChange={(e) => setSelectedPlayer(Number(e.target.value))}
-                className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-              >
-                <option value="" disabled>
-                  Select Player
-                </option>
-                {players.map((player) => (
-                  <option key={player.kfupm_id} value={player.kfupm_id}>
-                    {player.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handleApprovePlayer}
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-lg shadow-md transition-colors text-sm"
-              >
-                Approve Player
-              </button>
+                  {teams.map((team) => (
+                    <option key={team.team_id} value={team.team_id}>
+                      {team.team_name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Player Name"
+                  value={selectedPlayer || ""}
+                  onChange={(e) => setSelectedPlayer(e.target.value)}
+                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                />
+                <button
+                  onClick={handleApprovePlayer}
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-lg shadow-md transition-colors text-sm"
+                >
+                  Approve Player
+                </button>
+              </div>
             </div>
           </div>
         </section>

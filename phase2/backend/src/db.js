@@ -13,6 +13,8 @@ const pool = mysql
   })
   .promise();
 
+export { pool };
+
 // use export so that you can use it in a different file
 
 // Tournament Admin Functions
@@ -253,6 +255,20 @@ export async function getTeamsInTournament(tr_id) {
   const [rows] = await pool.query(
     "SELECT t.team_id, t.team_name FROM team t JOIN tournament_team tt ON t.team_id = tt.team_id WHERE tt.tr_id = ?",
     [tr_id]
+  );
+  return rows;
+}
+
+export async function getEligiblePlayersForTeam(team_id, tr_id) {
+  // Return players who are not already in team_player for this team and tournament
+  const [rows] = await pool.query(
+    `SELECT p.kfupm_id, p.name
+     FROM player pl
+     JOIN person p ON p.kfupm_id = pl.player_id
+     WHERE pl.player_id NOT IN (
+       SELECT player_id FROM team_player WHERE team_id = ? AND tr_id = ?
+     )`,
+    [team_id, tr_id]
   );
   return rows;
 }

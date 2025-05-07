@@ -16,6 +16,8 @@ import {
   selectCaptain,
   approvePlayerJoin,
   getTeamsInTournament,
+  pool,
+  getEligiblePlayersForTeam,
 } from "./db.js";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -162,28 +164,29 @@ app.delete("/deleteTournament/:tr_id", async (req, res) => {
 });
 
 app.post("/team", async (req, res) => {
-  const { tr_id, team_id, team_name } = req.body;
+  const { team_name } = req.body; // Only require team_name
 
-  if (!team_id || !team_name || !tr_id) {
-    return res.status(400).json({ success: false, message: "Missing fields" });
+  if (!team_name) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing team name" });
   }
 
   try {
-    const result = await insertTeamById(team_id, team_name, tr_id);
-    console.log(result);
-
-    if (result.success) {
-      res.status(201).json({
-        success: true,
-        message: "Team inserted",
-        team_id: result.team_id,
-      });
-    } else {
-      res
-        .status(409)
-        .json({ success: false, message: result.message || result.error });
-    }
+    // Insert team and get new team_id
+    const [result] = await pool.query(
+      "INSERT INTO team (team_name) VALUES (?)",
+      [team_name]
+    );
+    const team_id = result.insertId;
+    console.log("Team created successfully with ID:", team_id);
+    res.status(201).json({
+      success: true,
+      message: "Team inserted",
+      team_id,
+    });
   } catch (err) {
+    console.error("Error creating team:", err);
     res
       .status(500)
       .json({ success: false, message: "Server error", error: err.message });
@@ -256,7 +259,19 @@ app.post("/selectCaptain", async (req, res) => {
 });
 
 app.post("/approvePlayer", async (req, res) => {
-  const { player_id, team_id, tr_id } = req.body;
+  let { player_id, player_name, team_id, tr_id } = req.body;
+
+  if (!player_id && player_name) {
+    // Look up player_id by name
+    const [rows] = await pool.query(
+      "SELECT kfupm_id FROM person WHERE name = ?",
+      [player_name]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Player not found" });
+    }
+    player_id = rows[0].kfupm_id;
+  }
 
   if (!player_id || !team_id || !tr_id) {
     return res
@@ -269,7 +284,7 @@ app.post("/approvePlayer", async (req, res) => {
     res.json({ success: true, message: "Player approved successfully" });
   } catch (err) {
     console.error("Query failed:", err);
-    res.status(500).json({ error: "Database query failed" });
+    res.status(500).json({ error: err.message || "Database query failed" });
   }
 });
 
@@ -286,6 +301,85 @@ app.get("/tournamentTeams", async (req, res) => {
   } catch (err) {
     console.error("Error fetching teams:", err);
     res.status(500).json({ error: "Failed to fetch teams" });
+  }
+});
+
+app.post("/tournamentTeams", async (req, res) => {
+  const {
+    team_id,
+    tr_id,
+    team_group = "A",
+    match_played = 0,
+    won = 0,
+    draw = 0,
+    lost = 0,
+    goal_for = 0,
+    goal_against = 0,
+    goal_diff = 0,
+    points = 0,
+    group_position = 0,
+  } = req.body;
+
+  console.log("Adding team to tournament:", { team_id, tr_id, team_group });
+
+  if (!team_id || !tr_id) {
+    return res.status(400).json({ message: "team_id and tr_id are required" });
+  }
+
+  try {
+    // Insert into tournament_team table
+    const [result] = await pool.query(
+      `INSERT INTO tournament_team (team_id, tr_id, team_group, match_played, won, draw, lost, goal_for, goal_against, goal_diff, points, group_position)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        team_id,
+        tr_id,
+        team_group,
+        match_played,
+        won,
+        draw,
+        lost,
+        goal_for,
+        goal_against,
+        goal_diff,
+        points,
+        group_position,
+      ]
+    );
+    console.log("Team added to tournament successfully");
+    res.status(201).json({
+      success: true,
+      message: "Team added to tournament",
+      insertId: result.insertId,
+    });
+  } catch (err) {
+    console.error("Error adding team to tournament:", err);
+    if (err.code === "ER_DUP_ENTRY") {
+      res
+        .status(409)
+        .json({ message: "This team is already in the tournament." });
+    } else {
+      res.status(500).json({
+        message: "Failed to add team to tournament.",
+        error: err.message,
+        code: err.code,
+      });
+    }
+  }
+});
+
+app.get("/eligiblePlayers", async (req, res) => {
+  const { team_id, tr_id } = req.query;
+  if (!team_id || !tr_id) {
+    return res.status(400).json({ error: "team_id and tr_id are required" });
+  }
+  try {
+    // Implement this in db.js
+    const players = await getEligiblePlayersForTeam(team_id, tr_id);
+    res.json(players);
+  } catch (err) {
+    console.error("Error fetching eligible players:", err);
+    res.status(500).json({ error: "Failed to fetch eligible players" });
   }
 });
 
