@@ -12,6 +12,7 @@ import {
   deleteTournament,
   addTournament,
   verifyAdminCredentials,
+  insertTeamById
 } from "./db.js";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -129,6 +130,10 @@ app.get("/teams", (req, res) => {
   console.log(scorers);
 });
 
+
+
+
+
 const redCards = await getRedCards();
 app.get("/redCards", (req, res) => {
   res.json(redCards);
@@ -156,6 +161,28 @@ app.delete("/deleteTournament/:tr_id", async (req, res) => {
       .json({ error: "Database error while deleting the tournament" });
   }
 });
+
+app.post('/team', async (req, res) => {
+  const { tr_id,  team_id,team_name } = req.body;
+
+  if (!team_id || !team_name || !tr_id ) {
+    return res.status(400).json({ success: false, message: 'Missing fields' });
+  }
+
+  try {
+    const result = await insertTeamById(team_id, team_name, tr_id);
+    console.log(result)
+
+    if (result.success) {
+      res.status(201).json({ success: true, message: 'Team inserted', team_id: result.team_id });
+    } else {
+      res.status(409).json({ success: false, message: result.message || result.error });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+});
+
 
 app.post("/tournament", async (req, res) => {
   const { tr_name } = req.body;

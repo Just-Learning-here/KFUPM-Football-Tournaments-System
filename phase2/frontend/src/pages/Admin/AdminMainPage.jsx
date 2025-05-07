@@ -5,6 +5,7 @@ export default function AdminTournamentPage() {
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [newTournamentName, setNewTournamentName] = useState("");
   const [teamName, setTeamName] = useState("");
+  const [teamId, setTeamId] = useState(null);
 
   useEffect(() => {
     fetchTournaments();
@@ -49,16 +50,41 @@ export default function AdminTournamentPage() {
       });
   };
 
+  console.log(teamId)
+  console.log(teamName)
+
   const handleAddTeam = () => {
-    if (!selectedTournament || !teamName.trim()) return;
-    fetch(`http://localhost:6969/tournament/${selectedTournament}/team`, {
+    if (!teamId || !teamName.trim() || !selectedTournament) {
+      console.warn("Team ID, Name, and Tournament ID are required.");
+      return;
+    }
+  
+    fetch("http://localhost:6969/team", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ team_name: teamName }),
+      body: JSON.stringify({
+        team_id: teamId,
+        team_name: teamName,
+        tr_id: selectedTournament,
+      }),
     })
-      .then(() => setTeamName(""))
-      .catch((err) => console.error("Error adding team:", err));
+      .then(async (res) => {
+        const result = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(result.message || "Failed to add team");
+        }
+        alert(`✅ Team added: ${teamName}`);
+        setTeamId("");
+        setTeamName("");
+      })
+      .catch((err) => {
+        console.error("Error adding team:", err);
+        
+        alert("❌ Failed to add team. See console.");
+      });
   };
+  
 
   const handleLogout = () => {
     window.location.href = "/";
@@ -122,6 +148,14 @@ export default function AdminTournamentPage() {
                 </option>
               ))}
             </select>
+            <input
+              type="text"
+              placeholder="Team ID"
+              value={teamId}
+              onChange={(e) => setTeamId(e.target.value)}
+              className="px-4 py-2 rounded-lg bg-gray-800 text-white w-full"
+            />
+
             <input
               type="text"
               placeholder="Team Name"

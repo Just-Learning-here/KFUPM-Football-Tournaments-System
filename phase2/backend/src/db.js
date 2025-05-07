@@ -210,3 +210,48 @@ export async function verifyAdminCredentials(username, password) {
 // console.log(result)
 
 //System Functions
+
+
+
+
+export async function insertTeamById(team_id, team_name, tr_id) {
+  try {
+    // Check if the team_id already exists
+    // const [[{ count }]] = await pool.query(
+    //   'SELECT COUNT(*) AS count FROM team WHERE team_id = ?',
+    //   [team_id]
+    // );
+
+    // if (count > 0) {
+    //   return { success: false, message: 'Team ID already exists.' };
+    // }
+
+    // Begin transaction
+    await pool.query('START TRANSACTION');
+
+    // Insert into team with team_group
+    await pool.query(
+      'INSERT INTO team (team_id, team_name) VALUES (?, ?)',  // Use placeholders
+      [team_id, team_name]
+    );
+
+    // Insert into tournament_team
+    await pool.query(
+      'INSERT INTO tournament_team (tr_id, team_id) VALUES (?, ?)', 
+      [tr_id, team_id,'N',  0,0, 0, 0, 0,  0, 0,   0,  1] // default for other values
+    );
+    
+
+
+
+
+    // Commit transaction
+    await pool.query('COMMIT');
+
+    return { success: true, team_id };
+  } catch (error) {
+    // Rollback transaction in case of an error
+    await pool.query('ROLLBACK');
+    return { success: false, error: error.message };
+  }
+}
