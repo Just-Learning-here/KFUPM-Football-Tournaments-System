@@ -223,7 +223,8 @@ export default function MainPage() {
                   key={player.player_id}
                   className="flex justify-between py-2"
                 >
-                  <span>{player.name}</span>
+                  <span>{player.name} </span>
+                  <span>{player.team_name}</span>
                   <span className="text-gray-300">
                     {player.RedCards} Red Cards
                   </span>

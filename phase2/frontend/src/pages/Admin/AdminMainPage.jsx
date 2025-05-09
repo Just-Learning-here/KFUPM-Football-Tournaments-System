@@ -9,9 +9,13 @@ export default function AdminTournamentPage() {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teams, setTeams] = useState([]);
   const [players, setPlayers] = useState([]);
+  const [teamPlayers, setTeamPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedCaptain, setSelectedCaptain] = useState(null);
   const [matchNo, setMatchNo] = useState("");
+  const [matches, setMatches] = useState([]);
+  const [teamId, setTeamId] = useState(null);
+  const [playerId, setPlayerId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,16 +28,40 @@ export default function AdminTournamentPage() {
     }
   }, [selectedTournament]);
 
+
+  
+  useEffect(() => {
+    if (selectedTournament) {
+      fetchMatchesInTournament();
+    }
+  }, [selectedTournament]);
+
+
   useEffect(() => {
     if (selectedTeam && selectedTournament) {
       fetchPlayers();
     }
   }, [selectedTeam, selectedTournament]);
 
+  useEffect(()=>{
+    if (selectedTeam ) {
+      fetchTeamPlayers();
+    }
+
+  },[selectedTeam])
+
   const fetchTournaments = () => {
     fetch("http://localhost:6969/tournament")
       .then((res) => res.json())
       .then((data) => setTournaments(data))
+      .catch((err) => console.error("Error fetching tournaments:", err));
+  };
+
+  const fetchMatchesInTournament = () => {
+    
+    fetch(`http://localhost:6969/Matches?tr_id=${selectedTournament}`)
+      .then((res) => res.json())
+      .then((data) => setMatches(data))
       .catch((err) => console.error("Error fetching tournaments:", err));
   };
 
@@ -54,6 +82,20 @@ export default function AdminTournamentPage() {
         setTeams([]);
       });
   };
+
+  const fetchTeamPlayers = () => {
+    if (!selectedTeam ) return;
+    fetch(
+      `http://localhost:6969/teamPlayers?team_id=${selectedTeam}`
+    )
+      .then((res) => res.json())
+      .then((data) => setTeamPlayers(data))
+      .catch((err) => console.error("Error fetching players:", err));
+  };
+
+
+
+
 
   const fetchPlayers = () => {
     if (!selectedTeam || !selectedTournament) return;
@@ -101,11 +143,11 @@ export default function AdminTournamentPage() {
       return;
     }
     try {
-      // First, add the team to the teams table
+      
       const teamResponse = await fetch("http://localhost:6969/team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team_name: teamName }),
+        body: JSON.stringify({ team_name: teamName,team_id:teamId }),
       });
 
       if (!teamResponse.ok) {
@@ -113,18 +155,18 @@ export default function AdminTournamentPage() {
         throw new Error(errorData.message || "Failed to create team");
       }
 
-      const teamData = await teamResponse.json();
-      console.log("Team created:", teamData);
-      const newTeamId = teamData.team_id;
+      //const teamData = await teamResponse.json();
+      //console.log("Team created:", teamData);
+      //const newTeamId = teamData.team_id;
 
-      // Then, associate the team with the tournament
+     
       const response = await fetch("http://localhost:6969/tournamentTeams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          team_id: newTeamId,
+          team_id: teamId,
           tr_id: selectedTournament,
-          team_group: "A", // or allow user to select group
+          team_group: "A", 
           match_played: 0,
           won: 0,
           draw: 0,
@@ -148,7 +190,8 @@ export default function AdminTournamentPage() {
       console.log("Team added to tournament:", result);
 
       setTeamName("");
-      await fetchTeams(); // Refresh teams list for the selected tournament
+      setTeamId("");
+      await fetchTeams(); 
       alert("Team added to tournament successfully");
     } catch (error) {
       console.error("Error adding team to tournament:", error);
@@ -206,6 +249,7 @@ export default function AdminTournamentPage() {
         player_name: selectedPlayer,
         team_id: selectedTeam,
         tr_id: selectedTournament,
+        playerId: playerId
       }),
     })
       .then(async (res) => {
@@ -224,6 +268,10 @@ export default function AdminTournamentPage() {
         alert(`❌ Failed to approve player: ${err.message}`);
       });
   };
+
+  console.log(matchNo)
+  console.log(selectedCaptain)
+  console.log(selectedTeam)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white p-4 font-sans">
@@ -323,7 +371,7 @@ export default function AdminTournamentPage() {
               </label>
               <select
                 value={selectedTournament || ""}
-                onChange={(e) => setSelectedTournament(Number(e.target.value))}
+                onChange={(e) => {setSelectedTournament(Number(e.target.value));}}
                 className="px-4 py-2 rounded-lg bg-white text-blue-800 font-semibold border border-blue-300 focus:border-blue-700 focus:outline-none transition-colors text-base min-w-[200px] shadow-sm"
               >
                 <option value="" disabled>
@@ -348,6 +396,13 @@ export default function AdminTournamentPage() {
                   placeholder="Team Name"
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
+                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Team ID"
+                  value={teamId}
+                  onChange={(e) => setTeamId(e.target.value)}
                   className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
                 />
                 <button
@@ -385,19 +440,37 @@ export default function AdminTournamentPage() {
                   <option value="" disabled>
                     Select Captain
                   </option>
-                  {players.map((player) => (
+                  {teamPlayers.map((player) => (
                     <option key={player.kfupm_id} value={player.kfupm_id}>
                       {player.name}
                     </option>
                   ))}
-                </select>
-                <input
+                </select>  
+
+                <select
+                  value={matchNo || ""}
+                  onChange={(e) => setMatchNo(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                >
+                  <option value="" disabled>
+                    Select Match
+                  </option>
+                  {matches.map((match) => (
+                    <option key={match.match_no} value={match.match_no}>
+                      {match.team1_name} vs {match.team2_name}
+                    </option>
+                  ))}
+                </select>  
+
+
+
+                {/* <input
                   type="number"
                   placeholder="Match Number"
-                  value={matchNo}
+                  value={matches}
                   onChange={(e) => setMatchNo(e.target.value)}
                   className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-                />
+                /> */}
                 <button
                   onClick={handleSelectCaptain}
                   className="bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg shadow-md transition-colors text-sm"
@@ -438,6 +511,13 @@ export default function AdminTournamentPage() {
                   placeholder="Player Name"
                   value={selectedPlayer || ""}
                   onChange={(e) => setSelectedPlayer(e.target.value)}
+                  className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Player ID"
+                  value={playerId}
+                  onChange={(e) => setPlayerId(e.target.value)}
                   className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
                 />
                 <button

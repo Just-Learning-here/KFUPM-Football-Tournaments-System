@@ -164,22 +164,22 @@ app.delete("/deleteTournament/:tr_id", async (req, res) => {
 });
 
 app.post("/team", async (req, res) => {
-  const { team_name } = req.body; // Only require team_name
+  const { team_id, team_name } = req.body; // Only require team_name
 
-  if (!team_name) {
+  if (!team_name && !team_id) {
     return res
       .status(400)
-      .json({ success: false, message: "Missing team name" });
+      .json({ success: false, message: "Missing team name and ID" });
   }
 
   try {
     // Insert team and get new team_id
     const [result] = await pool.query(
-      "INSERT INTO team (team_name) VALUES (?)",
-      [team_name]
+      "INSERT INTO team (team_id,team_name) VALUES (?,?)",
+      [team_id,team_name]
     );
-    const team_id = result.insertId;
-    console.log("Team created successfully with ID:", team_id);
+    //const team_id = result.insertId;
+    //console.log("Team created successfully with ID:", team_id);
     res.status(201).json({
       success: true,
       message: "Team inserted",
@@ -250,6 +250,7 @@ app.post("/selectCaptain", async (req, res) => {
   }
 
   try {
+    console.log(match_no,team_id,player_id)
     await selectCaptain(match_no, team_id, player_id);
     res.json({ success: true, message: "Captain selected successfully" });
   } catch (err) {

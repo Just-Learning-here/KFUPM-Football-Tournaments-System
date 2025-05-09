@@ -48,11 +48,30 @@ const team = await getTeam(1229)
 console.log(team)*/
 
 export async function selectCaptain(match_no, team_id, player_id) {
-  const result = await pool.query(
-    "INSERT INTO match_captain (match_no,team_id,player_captain) VALUES(?,?,?)",
-    [match_no, team_id, player_id]
-  );
-  return await getMatchCaptain();
+  const isThereCaptain = await pool.query('select * from match_captain where match_no = ? and team_id =? ',[match_no,team_id])
+  
+  
+
+
+  if (isThereCaptain.length >0){
+    console.log("if case is the one worked")
+    await pool.query("DELETE from match_captain where match_no = ? and team_id =? ",[match_no,team_id])
+    await pool.query(
+      "INSERT INTO match_captain (match_no,team_id,player_captain) VALUES(?,?,?)",
+      [match_no, team_id, player_id]
+    ); 
+
+
+    //return await getMatchCaptain();
+  }
+  else {
+    console.log("else is the one worked")
+     await pool.query(
+      "INSERT INTO match_captain (match_no,team_id,player_captain) VALUES(?,?,?)",
+      [match_no, team_id, player_id]
+    ); 
+  }
+  
 }
 
 //تجربة للميثود
@@ -107,8 +126,8 @@ export async function showMatchCaptain(match_no, team_id, tr_id) {
   );
   return rows;
 }
-const capResult = await showMatchCaptain(1, 1214);
-console.log(capResult);
+//const capResult = await showMatchCaptain(1, 1214);
+//console.log(capResult);
 
 export async function showTeamStaff(team_id) {
   const [rows] = await pool.query(
