@@ -192,16 +192,41 @@ export async function getMatchesInCertainTournament(tr_id) {
 }
 
 export async function getScorers() {
+  // const [rows] = await pool.query(
+  //   "select player_id,p.name, team_name ,sum(gd.match_no) AS Goals from goal_details as gd JOIN team as t ON t.team_id = gd.team_id JOIN person as p ON p.kfupm_id = gd.player_id group by player_id, team_name,p.name ;"
+  // );
   const [rows] = await pool.query(
-    "select player_id,p.name, team_name ,sum(gd.match_no) AS Goals from goal_details as gd JOIN team as t ON t.team_id = gd.team_id JOIN person as p ON p.kfupm_id = gd.player_id group by player_id, team_name,p.name ;"
-  );
+  `SELECT 
+     gd.player_id, 
+     p.name, 
+     t.team_name, 
+     COUNT(gd.match_no) AS Goals
+   FROM 
+     goal_details AS gd
+     JOIN team AS t ON t.team_id = gd.team_id
+     JOIN person AS p ON p.kfupm_id = gd.player_id
+   GROUP BY 
+     gd.player_id, t.team_name, p.name
+   ORDER BY 
+     Goals DESC
+   LIMIT 1;`
+);
+
   return rows;
 }
 
 export async function getRedCards() {
-  const [rows] = await pool.query(
-    'select p.name, t.team_name, sum(match_no) as RedCards from player_booked as pd Join team as t On t.team_id = pd.team_id Join person as p On p.kfupm_id = pd.player_id where sent_off="Y" Group by p.name,t.team_name;'
-  );
+const [rows] = await pool.query(
+  'SELECT p.name, t.team_name, COUNT(*) AS RedCards ' +
+  'FROM player_booked AS pd ' +
+  'JOIN team AS t ON t.team_id = pd.team_id ' +
+  'JOIN person AS p ON p.kfupm_id = pd.player_id ' +
+  'WHERE pd.sent_off = "Y" ' +
+  'GROUP BY t.team_name, p.name ' +
+  'ORDER BY t.team_name, RedCards DESC;' // Orders by team name and red card count in descending order
+);
+
+
   return rows;
 }
 

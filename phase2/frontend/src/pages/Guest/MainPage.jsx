@@ -201,14 +201,14 @@ export default function MainPage() {
 
         <aside className="col-span-12 md:col-span-4 space-y-6">
           <div className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg">
-            <h3 className="text-lg font-semibold mb-3">🎯 Top Scorers</h3>
+            <h3 className="text-lg font-semibold mb-3">🎯 Top Scorer</h3>
             <ul className="divide-y divide-white/10 text-sm">
               {fetchedGoals.map((player) => (
                 <li
                   key={player.player_id}
                   className="flex justify-between py-2"
                 >
-                  <span>{player.name}</span>
+                  <span>{player.name} - {player.team_name}</span>
                   <span className="text-gray-300">{player.Goals} Goals</span>
                 </li>
               ))}
@@ -223,8 +223,8 @@ export default function MainPage() {
                   key={player.player_id}
                   className="flex justify-between py-2"
                 >
-                  <span>{player.name} </span>
-                  <span>{player.team_name}</span>
+                  <span>{player.name} - {player.team_name} </span>
+                  
                   <span className="text-gray-300">
                     {player.RedCards} Red Cards
                   </span>
