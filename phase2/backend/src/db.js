@@ -223,7 +223,7 @@ const [rows] = await pool.query(
   'JOIN person AS p ON p.kfupm_id = pd.player_id ' +
   'WHERE pd.sent_off = "Y" ' +
   'GROUP BY t.team_name, p.name ' +
-  'ORDER BY t.team_name, RedCards DESC;' // Orders by team name and red card count in descending order
+  'ORDER BY t.team_name, RedCards DESC;' 
 );
 
 
