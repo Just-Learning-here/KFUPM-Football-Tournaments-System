@@ -452,15 +452,18 @@ export default function AdminTournamentPage() {
                   onChange={(e) => setMatchNo(Number(e.target.value))}
                   className="px-3 py-1.5 rounded-lg bg-gray-800/50 text-white w-full border border-white/10 focus:border-blue-500 focus:outline-none transition-colors text-sm"
                 >
-                  <option value="" disabled>
-                    Select Match
-                  </option>
-                  {matches.map((match) => (
-                    <option key={match.match_no} value={match.match_no}>
-                      {match.team1_name} vs {match.team2_name}
-                    </option>
-                  ))}
-                </select>  
+                  
+  <option value="" disabled>
+    Select Match
+  </option>
+  {matches
+    .filter((match) => match.team1_id === selectedTeam || match.team2_id === selectedTeam)
+    .map((match) => (
+      <option key={match.match_no} value={match.match_no}>
+        {match.team1_name} vs {match.team2_name}
+      </option>
+    ))}
+</select>  
 
 
 
