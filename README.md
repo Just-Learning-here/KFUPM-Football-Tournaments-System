@@ -1,4 +1,4 @@
-# ICS321 Project - Phase 2
+# KFUPM Football's Tournament System
 
 This is a full-stack web application built with React.js for the frontend and Node.js/Express for the backend. The project implements a modern web application with user authentication and database integration.
 
