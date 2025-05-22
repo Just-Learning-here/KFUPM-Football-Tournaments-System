@@ -119,7 +119,9 @@ This project is licensed under the ISC License.
 
 ## 👥 Authors
 
-[Your Name/Team Name]
+Bader Almutairi
+Mohammed Alsahli
+Yazeed Alamri
 
 ## 🙏 Acknowledgments
 
