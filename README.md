@@ -119,9 +119,9 @@ This project is licensed under the ISC License.
 
 ## 👥 Authors
 
-Bader Almutairi
-Mohammed Alsahli
-Yazeed Alamri
+[Bader Almutairi,
+Mohammed Alsahli,
+Yazeed Alamri]
 
 ## 🙏 Acknowledgments
 
