@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback,useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminTournamentPage() {
@@ -8,7 +8,7 @@ export default function AdminTournamentPage() {
   const [teamName, setTeamName] = useState("");
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teams, setTeams] = useState([]);
-  const [players, setPlayers] = useState([]);
+  /*players, setPlayers*/const [ setPlayers] = useState([]);
   const [teamPlayers, setTeamPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedCaptain, setSelectedCaptain] = useState(null);
@@ -18,54 +18,24 @@ export default function AdminTournamentPage() {
   const [playerId, setPlayerId] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchTournaments();
-  }, []);
+ 
 
-  useEffect(() => {
-    if (selectedTournament) {
-      fetchTeams();
-    }
-  }, [selectedTournament]);
-
-
-  
-  useEffect(() => {
-    if (selectedTournament) {
-      fetchMatchesInTournament();
-    }
-  }, [selectedTournament]);
-
-
-  useEffect(() => {
-    if (selectedTeam && selectedTournament) {
-      fetchPlayers();
-    }
-  }, [selectedTeam, selectedTournament]);
-
-  useEffect(()=>{
-    if (selectedTeam ) {
-      fetchTeamPlayers();
-    }
-
-  },[selectedTeam])
-
-  const fetchTournaments = () => {
+  const fetchTournaments = useCallback(async () => {
     fetch("http://localhost:6969/tournament")
       .then((res) => res.json())
       .then((data) => setTournaments(data))
       .catch((err) => console.error("Error fetching tournaments:", err));
-  };
+  },[]);
 
-  const fetchMatchesInTournament = () => {
+  const fetchMatchesInTournament = useCallback( async() => {
     
     fetch(`http://localhost:6969/Matches?tr_id=${selectedTournament}`)
       .then((res) => res.json())
       .then((data) => setMatches(data))
       .catch((err) => console.error("Error fetching tournaments:", err));
-  };
+  },[selectedTournament]);
 
-  const fetchTeams = () => {
+  const fetchTeams = useCallback(async() => {
     if (!selectedTournament) return;
     fetch(`http://localhost:6969/tournamentTeams?tr_id=${selectedTournament}`)
       .then((res) => res.json())
@@ -81,9 +51,9 @@ export default function AdminTournamentPage() {
         console.error("Error fetching teams:", err);
         setTeams([]);
       });
-  };
+  },[selectedTournament]);
 
-  const fetchTeamPlayers = () => {
+  const fetchTeamPlayers = useCallback(() => {
     if (!selectedTeam ) return;
     fetch(
       `http://localhost:6969/teamPlayers?team_id=${selectedTeam}`
@@ -91,13 +61,13 @@ export default function AdminTournamentPage() {
       .then((res) => res.json())
       .then((data) => setTeamPlayers(data))
       .catch((err) => console.error("Error fetching players:", err));
-  };
+  },[selectedTeam]);
 
 
 
 
 
-  const fetchPlayers = () => {
+  const fetchPlayers = useCallback( () => {
     if (!selectedTeam || !selectedTournament) return;
     fetch(
       `http://localhost:6969/eligiblePlayers?team_id=${selectedTeam}&tr_id=${selectedTournament}`
@@ -105,7 +75,7 @@ export default function AdminTournamentPage() {
       .then((res) => res.json())
       .then((data) => setPlayers(data))
       .catch((err) => console.error("Error fetching players:", err));
-  };
+  },[selectedTeam,selectedTournament,setPlayers]);
 
   const handleAddTournament = () => {
     if (!newTournamentName.trim()) return;
@@ -268,6 +238,38 @@ export default function AdminTournamentPage() {
         alert(`❌ Failed to approve player: ${err.message}`);
       });
   };
+
+  useEffect(() => {
+    fetchTournaments();
+  }, [fetchTournaments]);
+
+  useEffect(() => {
+    if (selectedTournament) {
+      fetchTeams();
+    }
+  }, [selectedTournament,fetchTeams]);
+
+
+  
+  useEffect(() => {
+    if (selectedTournament) {
+      fetchMatchesInTournament();
+    }
+  }, [selectedTournament,fetchMatchesInTournament]);
+
+
+  useEffect(() => {
+    if (selectedTeam && selectedTournament) {
+      fetchPlayers();
+    }
+  }, [selectedTeam, selectedTournament,fetchPlayers]);
+
+  useEffect(()=>{
+    if (selectedTeam ) {
+      fetchTeamPlayers();
+    }
+
+  },[selectedTeam,fetchPlayers,fetchTeamPlayers])
 
   console.log(matchNo)
   console.log(selectedCaptain)

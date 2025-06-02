@@ -1,5 +1,5 @@
 // App.js
-import React, { useEffect } from "react";
+//import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPage from ".//pages/Guest/MainPage";
 import AdminMainPage from ".//pages/Admin/AdminMainPage";
