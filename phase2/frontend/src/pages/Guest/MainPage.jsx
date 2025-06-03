@@ -73,7 +73,7 @@ export default function MainPage() {
   const [fetchedRedCards, setfetchedRedCards] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:6969/tournament")
+    fetch("http://51.20.127.216:3306/tournament")
       .then((res) => res.json())
       .then((fetchedData) => {
         setFetchedTournaments(fetchedData);
@@ -89,7 +89,7 @@ export default function MainPage() {
 
   useEffect(() => {
     if (!selectedTournament) return;
-    fetch(`http://127.0.0.1:6969/Matches?tr_id=${selectedTournament}`)
+    fetch(`http://51.20.127.216:3306/Matches?tr_id=${selectedTournament}`)
       .then((res) => res.json())
       .then((fetchedData) => {
         setfetchedMatches(fetchedData);
@@ -98,7 +98,7 @@ export default function MainPage() {
   }, [selectedTournament]);
 
   useEffect(() => {
-    fetch("http://localhost:6969/Scorers")
+    fetch("http://51.20.127.216:3306/Scorers")
       .then((res) => res.json())
       .then((fetchedData) => {
         setFetchedGoals(fetchedData);
@@ -107,7 +107,7 @@ export default function MainPage() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:6969/redCards")
+    fetch("http://51.20.127.216:3306/redCards")
       .then((res) => res.json())
       .then((fetchedData) => {
         setfetchedRedCards(fetchedData);

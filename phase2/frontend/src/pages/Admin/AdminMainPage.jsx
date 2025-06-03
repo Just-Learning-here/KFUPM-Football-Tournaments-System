@@ -29,7 +29,7 @@ export default function AdminTournamentPage() {
 
   const fetchMatchesInTournament = useCallback( async() => {
     
-    fetch(`http://localhost:6969/Matches?tr_id=${selectedTournament}`)
+    fetch(`http://51.20.127.216:3306/Matches?tr_id=${selectedTournament}`)
       .then((res) => res.json())
       .then((data) => setMatches(data))
       .catch((err) => console.error("Error fetching tournaments:", err));
