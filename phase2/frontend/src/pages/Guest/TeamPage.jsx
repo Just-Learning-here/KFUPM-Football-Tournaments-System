@@ -20,7 +20,7 @@ export default function TeamProfilePage() {
   
 
   useEffect(() => {
-    fetch(`http://localhost:6969/teamStaff/?team_id=${teamId}`)
+    fetch(`http://51.20.127.216:3306/teamStaff/?team_id=${teamId}`)
       .then((res) => res.json())
       .then((data) => setTeamStaff(data))
       .catch((err) => console.error("Error fetching team info:", err));
@@ -29,7 +29,7 @@ export default function TeamProfilePage() {
   }, [teamId]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:6969/matchCaptain?match_no=${matchNo}&team_id=${teamId}&tr_id=${tournamentId}`)
+    fetch(`http://51.20.127.216:3306/matchCaptain?match_no=${matchNo}&team_id=${teamId}&tr_id=${tournamentId}`)
       .then((res) => res.json())
       .then((data) => setTeamCaptain(data))
       .catch((err) => console.error("Error fetching team info:", err));
@@ -39,7 +39,7 @@ export default function TeamProfilePage() {
 
 
   useEffect(() => {
-    fetch(`http://localhost:6969/teamPlayers?team_id=${teamId}`)
+    fetch(`http://51.20.127.216:3306/teamPlayers?team_id=${teamId}`)
       .then((res) => res.json())
       .then((data) => setTeamPlayers(data))
       .catch((err) => console.error("Error fetching team members:", err));

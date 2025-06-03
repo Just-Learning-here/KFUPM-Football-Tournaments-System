@@ -21,7 +21,7 @@ export default function AdminTournamentPage() {
  
 
   const fetchTournaments = useCallback(async () => {
-    fetch("http://localhost:6969/tournament")
+    fetch("http://51.20.127.216:3306/tournament")
       .then((res) => res.json())
       .then((data) => setTournaments(data))
       .catch((err) => console.error("Error fetching tournaments:", err));
@@ -37,7 +37,7 @@ export default function AdminTournamentPage() {
 
   const fetchTeams = useCallback(async() => {
     if (!selectedTournament) return;
-    fetch(`http://localhost:6969/tournamentTeams?tr_id=${selectedTournament}`)
+    fetch(`http://51.20.127.216:3306/tournamentTeams?tr_id=${selectedTournament}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -56,7 +56,7 @@ export default function AdminTournamentPage() {
   const fetchTeamPlayers = useCallback(() => {
     if (!selectedTeam ) return;
     fetch(
-      `http://localhost:6969/teamPlayers?team_id=${selectedTeam}`
+      `http://51.20.127.216:3306/teamPlayers?team_id=${selectedTeam}`
     )
       .then((res) => res.json())
       .then((data) => setTeamPlayers(data))
@@ -70,7 +70,7 @@ export default function AdminTournamentPage() {
   const fetchPlayers = useCallback( () => {
     if (!selectedTeam || !selectedTournament) return;
     fetch(
-      `http://localhost:6969/eligiblePlayers?team_id=${selectedTeam}&tr_id=${selectedTournament}`
+      `http://51.20.127.216:3306/eligiblePlayers?team_id=${selectedTeam}&tr_id=${selectedTournament}`
     )
       .then((res) => res.json())
       .then((data) => setPlayers(data))
@@ -79,7 +79,7 @@ export default function AdminTournamentPage() {
 
   const handleAddTournament = () => {
     if (!newTournamentName.trim()) return;
-    fetch("http://localhost:6969/tournament", {
+    fetch("http://51.20.127.216:3306/tournament", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tr_name: newTournamentName }),
@@ -92,7 +92,7 @@ export default function AdminTournamentPage() {
   };
 
   const deleteTournament = (tr_id) => {
-    fetch(`http://localhost:6969/deleteTournament/${tr_id}`, {
+    fetch(`http://51.20.127.216:3306/deleteTournament/${tr_id}`, {
       method: "DELETE",
     })
       .then((res) => {
@@ -114,7 +114,7 @@ export default function AdminTournamentPage() {
     }
     try {
       
-      const teamResponse = await fetch("http://localhost:6969/team", {
+      const teamResponse = await fetch("http://51.20.127.216:3306/team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ team_name: teamName,team_id:teamId }),
@@ -130,7 +130,7 @@ export default function AdminTournamentPage() {
       //const newTeamId = teamData.team_id;
 
      
-      const response = await fetch("http://localhost:6969/tournamentTeams", {
+      const response = await fetch("http://51.20.127.216:3306/tournamentTeams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -212,7 +212,7 @@ export default function AdminTournamentPage() {
       );
       return;
     }
-    fetch("http://localhost:6969/approvePlayer", {
+    fetch("http://51.20.127.216:3306/approvePlayer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
